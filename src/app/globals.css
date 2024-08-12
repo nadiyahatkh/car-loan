@@ -84,11 +84,25 @@ body {
 
 .top-section {
   background-color: #1F2837;
-  height: 30%;
+  height: 40%;
+  position: relative;
+  z-index: 1;
 }
 
 .bottom-section {
   background-color: #F9FAFB;
-  height: 70%;
   flex-grow: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.content {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
 }
