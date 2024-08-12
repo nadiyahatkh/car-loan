@@ -1,10 +1,16 @@
-import Image from "next/image";
+
 
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div >djjdj</div>
-    </main>
+    <>
+
+      <div className="top-section">
+        {/* Konten atau komponen navbar atau header bisa dimasukkan di sini */}
+      </div>
+      <div className="bottom-section">
+        {/* <Component {...pageProps} /> */}
+      </div>
+      </>
   );
 }

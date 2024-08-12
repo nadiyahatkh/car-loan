@@ -67,3 +67,28 @@
     @apply bg-background text-foreground;
   }
 }
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.top-section {
+  background-color: #1F2837;
+  height: 30%;
+}
+
+.bottom-section {
+  background-color: #F9FAFB;
+  height: 70%;
+  flex-grow: 1;
+}
