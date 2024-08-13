@@ -69,40 +69,8 @@
 }
 
 body {
+  background: linear-gradient(to bottom, #1F2837 35%, #F9FAFB 30%); /* Biru 30% atas, Putih 70% bawah */
   margin: 0;
   padding: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.top-section {
-  background-color: #1F2837;
-  height: 40%;
-  position: relative;
-  z-index: 1;
-}
-
-.bottom-section {
-  background-color: #F9FAFB;
-  flex-grow: 1;
-  position: relative;
-  z-index: 1;
-}
-
-.content {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 2;
+  min-height: 100vh;
 }

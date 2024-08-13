@@ -6,46 +6,10 @@ import { Button } from "@/components/ui/button";
 
 
 export default function Home() {
-  const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV004",
-      paymentStatus: "Paid",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV005",
-      paymentStatus: "Paid",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV006",
-      paymentStatus: "Pending",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV007",
-      paymentStatus: "Unpaid",
-      paymentMethod: "Credit Card",
-    },
-  ]
+  
   return (
     <>
-      <div className="top-section">
+      {/* <div className="top-section">
         <Navbar />
 
         <div className="max-w-screen-xl mx-auto px-4 py-2 z-[100]">
@@ -115,7 +79,7 @@ export default function Home() {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </div> */}
       </>
   );
 }
