@@ -1,4 +1,4 @@
-'use client'
+"use client"
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -16,14 +16,13 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+export default function SubmissionUser(){
+    const [date, setDate] = useState({
+        from: new Date(2022, 0, 20),
+        to: addDays(new Date(2022, 0, 20), 20),
+      })
 
-export default function SubmissionAdmin() {
-  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
-  const [date, setDate] = useState({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
-  })
-    const invoices = [
+      const invoices = [
         {
           name: "INV001",
           paymentStatus: "Paid",
@@ -60,7 +59,7 @@ export default function SubmissionAdmin() {
           paymentMethod: "Credit Card",
         },
       ]
-    return (
+    return(
         <div className=" w-full max-w-7xl mx-auto">
         <div className="flex items-center space-x-3 mb-5">
             
@@ -72,7 +71,7 @@ export default function SubmissionAdmin() {
                     <p className="font-bold text-sm">Avanza Veloz 2022</p>
                 </div>
                 <img 
-                    src="veloc.png" 
+                    src="/veloc.png" 
                     alt="veloc" 
                     className="h-24 w-55 ml-auto mt-4" 
                 />
@@ -86,7 +85,7 @@ export default function SubmissionAdmin() {
                     <p className="font-bold text-sm">Mobilio 2018</p>
                 </div>
                 <img 
-                    src="mobilio.png" 
+                    src="/mobilio.png" 
                     alt="mobilio" 
                     className="h-24 w-55 ml-auto mt-4" 
                 />
@@ -151,60 +150,41 @@ export default function SubmissionAdmin() {
                     )} */}
                     {/* Add Asset Button */}
                     <Button variant="solid" className="text-white flex items-center" style={{ background: "#4F46E5" }}>
-                        <Link href="./user-management/add-user" className="flex items-center space-x-2">
-                            <img src="/folderX.png" alt="Export Icon" className="w-4 h-4" />
-                            <div className="text-sm">Export</div>
+                        <Link href="/user/submission-user/submission" className="flex items-center space-x-2">
+                            <div className="text-sm">Buat Pengajuan</div>
                         </Link>
                     </Button>
                   </div>
                 </div>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                      <TableHeader>
-                          <TableRow>
-                          <TableHead className="text-sm font-semibold text-black">Tujuan</TableHead>
-                          <TableHead className="text-sm font-semibold text-black">Waktu Peminjaman</TableHead>
-                          <TableHead className="text-sm font-semibold text-black">Waktu Pengembalian</TableHead>
-                          <TableHead className="text-sm font-semibold text-black">Peminjaman</TableHead>
-                          <TableHead className="text-sm font-semibold text-black">Aksi</TableHead>
-                          </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                          {invoices.map((invoice) => (
-                          <TableRow key={invoice.invoice}>
-                              <TableCell className="text-sm">{invoice.name}</TableCell>
-                              <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
-                              <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
-                              <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
-                              <TableCell className="">
-                                  <Dialog>
-                                  <DialogTrigger asChild>
-                                      <Button variant="outline" className="mr-2 shadow-md h-8 w-[30%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Tolak</Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="sm:max-w-md">
-                                  <div className="grid w-full gap-1.5">
-                                      <Label htmlFor="message-2">Alasan Penolakan</Label>
-                                      <Textarea id="message-2" />
-                                      <p className="text-sm text-muted-foreground">
-                                          Tuliskan alasan penolakan pengajuan
-                                      </p>
-                                      </div>
-                                      <DialogFooter className="">
-                                          <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                          <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
-                                      </DialogFooter>
-                                  </DialogContent>
-                                  </Dialog>
-                                  <Button variant="primary" className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>Setujui</Button>
-                              </TableCell>
-                          </TableRow>
-                          ))}
-                      </TableBody>
-                  </Table>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead className="text-sm font-semibold text-black">Tujuan</TableHead>
+                            <TableHead className="text-sm font-semibold text-black">Waktu Peminjaman</TableHead>
+                            <TableHead className="text-sm font-semibold text-black">Waktu Pengembalian</TableHead>
+                            <TableHead className="text-sm font-semibold text-black">Status</TableHead>
+                            <TableHead className="text-sm font-semibold text-black">Catatan</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {invoices.map((invoice) => (
+                            <TableRow key={invoice.invoice}>
+                                <TableCell className="font-medium">{invoice.name}</TableCell>
+                                <TableCell>{invoice.paymentStatus}</TableCell>
+                                <TableCell>{invoice.paymentStatus}</TableCell>
+                                <TableCell>{invoice.paymentStatus}</TableCell>
+                                <TableCell className="text-right flex">
+                                    -
+                                </TableCell>
+                            </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
         </div>
-    );
+    )
 }

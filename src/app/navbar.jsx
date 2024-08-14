@@ -29,7 +29,7 @@ export default function Navbar() {
         return <div></div>;
     }
     return (
-        <nav className="border-gray-200 dark:bg-gray-900" style={{ background: "#1F2837" }}>
+        <nav className="border-gray-200 dark:bg-gray-900" style={{ background: "transparent" }}>
             <div className="py-4">
                 <div className="w-full max-w-7xl mx-auto">
                     <div className="flex flex-wrap items-center justify-between mb-6">
@@ -58,7 +58,7 @@ export default function Navbar() {
                             <Link key={route.href} href={route.href} className="flex items-center">
                                 <Button
                                     variant="outline"
-                                    className={`text-white border-none rounded-none hover:text-gray-400 ${route.active ? 'bg-[#111827]' : 'bg-transparent'}`}
+                                    className={`text-white border-none rounded-sm hover:text-gray-400 ${route.active ? 'bg-[#111827]' : 'bg-transparent'}`}
                                 >
                                     {route.label}
                                 </Button>

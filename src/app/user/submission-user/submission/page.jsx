@@ -5,14 +5,15 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
-export default function AddUser() {
-    return (
+export default function Pengajuan(){
+    return(
         <div className="w-full max-w-7xl mx-auto">
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/user-management">
+                        <BreadcrumbLink href="/user/submission-user">
                             <img src="/home.png" />
                         </BreadcrumbLink>
                     </BreadcrumbItem>
@@ -20,7 +21,7 @@ export default function AddUser() {
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <div>Add User</div>
+                        <div>Pengajuan</div>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
@@ -33,10 +34,10 @@ export default function AddUser() {
                             {/* Text Section */}
                             <div className="w-[45%]">
                                 <div className="text-lg font-semibold">
-                                    Personal Information
+                                    Pengajuan Peminjaman
                                 </div>
                                 <div className="text-muted-foreground text-xs">
-                                    Use a permanent address where you can receive mail.
+                                    Silahkan isi form di samping
                                 </div>
                             </div>
 
@@ -46,31 +47,11 @@ export default function AddUser() {
                                     <form action="">
                                         <CardContent className="pe-9 py-2">
                                                 <div className="mb-4">
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="w-full mr-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">First Name</Label>
-                                                            <Input type="text" />
-                                                        </div>
-                                                        <div className="w-full ml-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Last Name</Label>
-                                                            <Input type="text" />
-                                                        </div>
-                                                    </div>
+                                                    <Label className="block text-sm mb-2 font-semibold">Tujuan Peminjaman Mobil</Label>
+                                                    <Textarea type="text" className="w-full" />
                                                 </div>
                                                 <div className="mb-4">
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="w-full mr-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Email Address</Label>
-                                                            <Input type="text" />
-                                                        </div>
-                                                        <div className="w-full ml-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Role</Label>
-                                                            <Input type="text" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="mb-4">
-                                                    <p className="font-bold text-sm mb-2">Photo</p>
+                                                    <p className="font-bold text-sm mb-2">Type Mobil</p>
                                                     <div className="flex items-center">
                                                     <img src="" name="foto" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
                                                         <input
@@ -110,5 +91,5 @@ export default function AddUser() {
                 </Card>
             </div>
         </div>
-    );
+    )
 }

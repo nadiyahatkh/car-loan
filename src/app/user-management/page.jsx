@@ -1,9 +1,15 @@
+"use client"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
+import { useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { TriangleAlert } from "lucide-react";
 
 export default function UserManagement() {
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
+
     const invoices = [
         {
           name: "INV001",
@@ -72,7 +78,7 @@ export default function UserManagement() {
                                 <TableRow>
                                 <TableHead className="w-[100px]">Name</TableHead>
                                 <TableHead>Role</TableHead>
-                                <TableHead className="text-right">Amount</TableHead>
+                                <TableHead className="text-right"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -80,7 +86,39 @@ export default function UserManagement() {
                                 <TableRow key={invoice.invoice}>
                                     <TableCell className="font-medium">{invoice.name}</TableCell>
                                     <TableCell>{invoice.paymentStatus}</TableCell>
-                                    <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+                                    <TableCell className="text-right flex justify-end">
+                                        <Button variant="outline" onClick={() => setIsDeleteAlertOpen(true)} className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Hapus</Button>
+                                        <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>
+                                          <Link href="/user-management/update-user">
+                                                Edit
+                                          </Link>
+                                        </Button>
+                                        <AlertDialog open={isDeleteAlertOpen} onClose={() => setIsDeleteAlertOpen(false)}>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader className="">
+                                            <div className="flex items-start">
+                                                {/* Icon */}
+                                                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#FEE2E2] flex items-center justify-center">
+                                                  <TriangleAlert className="text-red-600" />
+                                                </div>
+
+                                                {/* Title and Description */}
+                                                <div className="ml-4">
+                                                  <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                                                  <AlertDialogDescription>
+                                                    Anda bisa saja ingin menolak pengajuan ini
+                                                  </AlertDialogDescription>
+                                                </div>
+                                              </div>
+                                              </AlertDialogHeader>
+                                              <hr className="w-full" />
+                                            <AlertDialogFooter className="bg-gray-100 w-full">
+                                              <AlertDialogCancel onClick={() => setIsDeleteAlertOpen(false)} className="font-semibold">Kembali</AlertDialogCancel>
+                                              <AlertDialogAction className="bg-red-600 text-white">Hapus</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                    </TableCell>
                                 </TableRow>
                                 ))}
                             </TableBody>

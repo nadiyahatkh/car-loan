@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function AddUser() {
+export default function UpdateUser (){
     return (
         <div className="w-full max-w-7xl mx-auto">
             <Breadcrumb>
@@ -20,7 +20,7 @@ export default function AddUser() {
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <div>Add User</div>
+                        <div>Edit User</div>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
@@ -44,16 +44,16 @@ export default function AddUser() {
                             <div className="w-[80%] ml-auto">
                                 <Card>
                                     <form action="">
-                                        <CardContent className="pe-9 py-2">
+                                        <CardContent className="py-4">
                                                 <div className="mb-4">
                                                     <div className="flex justify-between items-center">
                                                         <div className="w-full mr-2">
                                                             <Label className="block text-sm mb-2 font-semibold">First Name</Label>
-                                                            <Input type="text" />
+                                                            <Input />
                                                         </div>
                                                         <div className="w-full ml-2">
                                                             <Label className="block text-sm mb-2 font-semibold">Last Name</Label>
-                                                            <Input type="text" />
+                                                            <Input />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -61,11 +61,11 @@ export default function AddUser() {
                                                     <div className="flex justify-between items-center">
                                                         <div className="w-full mr-2">
                                                             <Label className="block text-sm mb-2 font-semibold">Email Address</Label>
-                                                            <Input type="text" />
+                                                            <Input />
                                                         </div>
                                                         <div className="w-full ml-2">
                                                             <Label className="block text-sm mb-2 font-semibold">Role</Label>
-                                                            <Input type="text" />
+                                                            <Input />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -110,5 +110,5 @@ export default function AddUser() {
                 </Card>
             </div>
         </div>
-    );
+    )
 }
