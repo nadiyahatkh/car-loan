@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export default function Pengajuan(){
-    return(
-        <div className="w-full max-w-7xl mx-auto">
+export default function Pengajuan() {
+    return (
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
                         <BreadcrumbLink href="/user/submission-user">
-                            <img src="/home.png" />
+                            <img src="/home.png" alt="Home" />
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
@@ -29,11 +29,11 @@ export default function Pengajuan(){
 
             <div className="mt-4">
                 {/* Personal Information Card */}
-                <Card className="w-[75%] py-4 rounded-none" style={{ background: "#F9FAFB" }}>
+                <Card className="w-full lg:w-[75%] py-4 rounded-none" style={{ background: "#F9FAFB" }}>
                     <CardContent>
-                        <div className="flex flex-row items-start">
+                        <div className="flex flex-col lg:flex-row items-start">
                             {/* Text Section */}
-                            <div className="w-[45%]">
+                            <div className="w-full lg:w-[45%]">
                                 <div className="text-lg font-semibold">
                                     Pengajuan Peminjaman
                                 </div>
@@ -43,18 +43,17 @@ export default function Pengajuan(){
                             </div>
 
                             {/* Form Card */}
-                            <div className="w-[80%] ml-auto">
+                            <div className="w-full lg:w-[80%] ml-0 lg:ml-auto mt-6 lg:mt-0">
                                 <Card>
                                     <form action="">
                                         <CardContent className="pe-9 py-2">
-                                                <div className="mb-4">
-                                                    <Label className="block text-sm mb-2 font-semibold">Tujuan Peminjaman Mobil</Label>
-                                                    <Textarea type="text" className="w-full" />
-                                                </div>
-                                                <div className="mb-4">
-                                                    <p className="font-bold text-sm mb-2">Type Mobil</p>
-                                                    <div className="flex items-center">
-                                                    <RadioGroup defaultValue="comfortable" className="flex items-center space-x-2">
+                                            <div className="mb-4">
+                                                <Label className="block text-sm mb-2 font-semibold">Tujuan Peminjaman Mobil</Label>
+                                                <Textarea type="text" className="w-full" />
+                                            </div>
+                                            <div className="mb-4">
+                                                <p className="font-bold text-sm mb-2">Type Mobil</p>
+                                                <RadioGroup defaultValue="comfortable" className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
                                                     <div className="space-x-2">
                                                         <RadioGroupItem value="default" id="r1" />
                                                         <Label htmlFor="r1">Mobilio 2018</Label>
@@ -63,28 +62,26 @@ export default function Pengajuan(){
                                                         <RadioGroupItem value="comfortable" id="r2" />
                                                         <Label htmlFor="r2">Avanza Veloz 2022</Label>
                                                     </div>
-                                                    </RadioGroup>
+                                                </RadioGroup>
+                                            </div>
+                                            <div className="mb-4">
+                                                <div className="flex flex-col lg:flex-row justify-between items-center">
+                                                    <div className="w-full lg:w-[48%] mb-4 lg:mb-0">
+                                                        <Label className="block text-sm mb-2 font-semibold">Waktu Peminjaman</Label>
+                                                        <Input type="text" />
+                                                    </div>
+                                                    <div className="w-full lg:w-[48%]">
+                                                        <Label className="block text-sm mb-2 font-semibold">Waktu Pengembalian</Label>
+                                                        <Input type="text" />
                                                     </div>
                                                 </div>
-                                                <div className="mb-4">
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="w-full mr-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Waktu Peminjaman</Label>
-                                                            <Input type="password" />
-                                                        </div>
-                                                        <div className="w-full ml-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Waktu Pengembalian</Label>
-                                                            <Input type="password" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
+                                            </div>
                                         </CardContent>
-                                            <hr className="mb-4" />
-                                            <CardFooter className="flex justify-end">
-                                                <Button variant="outline" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Simpan</Button>
-                                            </CardFooter>
+                                        <hr className="mb-4" />
+                                        <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-2">
+                                            <Button variant="outline" className="shadow-md h-10 w-full sm:w-auto" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                            <Button variant="primary" className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                        </CardFooter>
                                     </form>
                                 </Card>
                             </div>
