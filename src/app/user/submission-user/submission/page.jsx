@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Pengajuan(){
     return(
@@ -53,25 +54,26 @@ export default function Pengajuan(){
                                                 <div className="mb-4">
                                                     <p className="font-bold text-sm mb-2">Type Mobil</p>
                                                     <div className="flex items-center">
-                                                    <img src="" name="foto" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
-                                                        <input
-                                                            name="foto"
-                                                            type="file"
-                                                            accept="image/*"
-                                                            style={{ display: 'none' }}
-                                                            id="fileInput"
-                                                        />
-                                                            <button type="button" onClick={() => document.getElementById('fileInput').click()} className="px-4 py-2 font-semibold shadow-sm border rounded-md">Change</button>
+                                                    <RadioGroup defaultValue="comfortable" className="flex items-center space-x-2">
+                                                    <div className="space-x-2">
+                                                        <RadioGroupItem value="default" id="r1" />
+                                                        <Label htmlFor="r1">Mobilio 2018</Label>
+                                                    </div>
+                                                    <div className="space-x-2">
+                                                        <RadioGroupItem value="comfortable" id="r2" />
+                                                        <Label htmlFor="r2">Avanza Veloz 2022</Label>
+                                                    </div>
+                                                    </RadioGroup>
                                                     </div>
                                                 </div>
                                                 <div className="mb-4">
                                                     <div className="flex justify-between items-center">
                                                         <div className="w-full mr-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Password</Label>
+                                                            <Label className="block text-sm mb-2 font-semibold">Waktu Peminjaman</Label>
                                                             <Input type="password" />
                                                         </div>
                                                         <div className="w-full ml-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Password Confirmation</Label>
+                                                            <Label className="block text-sm mb-2 font-semibold">Waktu Pengembalian</Label>
                                                             <Input type="password" />
                                                         </div>
                                                     </div>
