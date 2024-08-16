@@ -17,6 +17,11 @@ export default function Navbar() {
             active: pathname.startsWith(`/submission`),
         },
         {
+            href: `/user/submission-user`,
+            label: `Pengajuan`,
+            active: pathname.startsWith(`/user/submission-user`),
+        },
+        {
             href: `/user-management`,
             label: `User Manajemen`,
             active: pathname.startsWith(`/user-management`),

@@ -41,7 +41,7 @@ export default function SubmissionUser(){
   ]
 
   return(
-      <div className="w-full max-w-7xl mx-auto px-4">
+      <div className="w-full max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-center space-x-0 md:space-x-3 mb-5">
             <Card className="rounded-none flex relative w-full md:w-auto">
               <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
@@ -142,10 +142,10 @@ export default function SubmissionUser(){
                           <TableBody>
                               {invoices.map((invoice) => (
                                   <TableRow key={invoice.name}>
-                                      <TableCell className="font-medium">{invoice.name}</TableCell>
-                                      <TableCell>{invoice.paymentStatus}</TableCell>
-                                      <TableCell>{invoice.paymentStatus}</TableCell>
-                                      <TableCell>{invoice.paymentStatus}</TableCell>
+                                      <TableCell className="text-sm">{invoice.name}</TableCell>
+                                      <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
+                                      <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
+                                      <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
                                       <TableCell className="text-right flex">-</TableCell>
                                   </TableRow>
                               ))}

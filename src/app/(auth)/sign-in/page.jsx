@@ -1,22 +1,96 @@
+'use client'
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { getSession, signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function SignIn () {
+    const router = useRouter();
+  const [value, setValue] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: session, status } = useSession();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    // Clear previous error
+    setError("");
+    
+    // Validate fields
+    if (!value.email || !value.password) {
+      setError("Email and password are required");
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: value.email,
+        password: value.password,
+      });
+
+      if (res && !res.error) {
+        const session = await getSession();
+        const userRole = session?.user?.role;
+        const redirectUrl = +userRole === 1 ? '/submission' : '/';
+        router.push(redirectUrl);
+      } else {
+        setError("Invalid email or password");
+      }
+    } catch (error) {
+      console.log('Handle login error:', error);
+      setError("An unexpected error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+//   useEffect(() => {
+//     if (status === 'authenticated') {
+//       if (session?.user?.role === 1) {
+//         router.push('/dashboard');
+//       } else {
+//         router.push('/');
+//       }
+//     }
+//   }, [status, session, router]);
+
     return(
         <div className="w-full h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('/signin.png')" }}>
             <div className="flex flex-col items-center">
                 <h2 className="text-2xl mb-10 font-bold">Sign in to your account</h2>
                 <div className="bg-white p-10 rounded-lg shadow-lg" style={{ width: '450px' }}>
-                    <form>
+                    <form onSubmit={handleLogin}>
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2" htmlFor="email">Email address</label>
-                            <Input type="email" id="email" className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <Input 
+                                type="email" 
+                                id="email" 
+                                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                onChange={(e) => {
+                                    setValue({ ...value, email: e.target.value });
+                                  }}
+                            />
                         </div>
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2" htmlFor="password">Password</label>
-                            <Input type="password" id="password" className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <Input 
+                                type="password" 
+                                id="password" 
+                                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                onChange={(e) => {
+                                    setValue({ ...value, password: e.target.value });
+                                  }}
+                            />
                         </div>
                         <div className="mb-4 flex items-center justify-between">
                             <div className="flex items-center">
