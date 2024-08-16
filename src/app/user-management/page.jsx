@@ -12,26 +12,6 @@ export default function UserManagement() {
 
     const invoices = [
         {
-          name: "INV001",
-          paymentStatus: "Paid",
-          paymentMethod: "Credit Card",
-        },
-        {
-          name: "INV002",
-          paymentStatus: "Pending",
-          paymentMethod: "PayPal",
-        },
-        {
-          name: "INV003",
-          paymentStatus: "Unpaid",
-          paymentMethod: "Bank Transfer",
-        },
-        {
-          name: "INV004",
-          paymentStatus: "Paid",
-          paymentMethod: "Credit Card",
-        },
-        {
           name: "INV005",
           paymentStatus: "Paid",
           paymentMethod: "PayPal",
@@ -50,12 +30,12 @@ export default function UserManagement() {
     return(
         <div className="w-full max-w-7xl mx-auto">
             <div className="flex items-center">
-                <Card className="rounded-none w-full p-4"> 
+                <Card className="rounded-none w-full ps-8"> 
                     <CardHeader>
                         <div className="flex justify-between items-center">
                             {/* Left section */}
                             <div>
-                                <p className="title font-manrope font-bold text-xl">User Manajaemen</p>
+                                <p className="title font-manrope font-bold text-lg">User Manajaemen</p>
                                 <p className="text-muted-foreground text-sm">
                                 A list of all the users in your account including their name, title, email and role.
                                 </p>

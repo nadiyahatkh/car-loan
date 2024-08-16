@@ -18,32 +18,11 @@ import { Textarea } from "@/components/ui/textarea";
 
 
 export default function SubmissionAdmin() {
-  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
   const [date, setDate] = useState({
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
   })
     const invoices = [
-        {
-          name: "INV001",
-          paymentStatus: "Paid",
-          paymentMethod: "Credit Card",
-        },
-        {
-          name: "INV002",
-          paymentStatus: "Pending",
-          paymentMethod: "PayPal",
-        },
-        {
-          name: "INV003",
-          paymentStatus: "Unpaid",
-          paymentMethod: "Bank Transfer",
-        },
-        {
-          name: "INV004",
-          paymentStatus: "Paid",
-          paymentMethod: "Credit Card",
-        },
         {
           name: "INV005",
           paymentStatus: "Paid",

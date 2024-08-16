@@ -38,59 +38,39 @@ export default function SubmissionUser(){
       paymentStatus: "Unpaid",
       paymentMethod: "Bank Transfer",
     },
-    {
-      name: "INV004",
-      paymentStatus: "Paid",
-      paymentMethod: "Credit Card",
-    },
-    {
-      name: "INV005",
-      paymentStatus: "Paid",
-      paymentMethod: "PayPal",
-    },
-    {
-      name: "INV006",
-      paymentStatus: "Pending",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      name: "INV007",
-      paymentStatus: "Unpaid",
-      paymentMethod: "Credit Card",
-    },
   ]
 
   return(
       <div className="w-full max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center space-x-0 md:space-x-3 mb-5">
-  <Card className="rounded-none flex relative w-full md:w-auto">
-    <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-      <p className="text-sm">Available Now</p>
-    </div>
-    <div className="flex flex-col p-4 pt-12">
-      <p className="font-bold text-sm">Avanza Veloz 2022</p>
-    </div>
-    <img 
-      src="/veloc.png" 
-      alt="veloc" 
-      className="h-24 w-55 ml-auto mt-4" 
-    />
-  </Card>
+            <Card className="rounded-none flex relative w-full md:w-auto">
+              <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
+                <p className="text-sm">Available Now</p>
+              </div>
+              <div className="flex flex-col p-4 pt-12">
+                <p className="font-bold text-sm">Avanza Veloz 2022</p>
+              </div>
+              <img 
+                src="/veloc.png" 
+                alt="veloc" 
+                className="h-24 w-55 ml-auto mt-4" 
+              />
+            </Card>
 
-  <Card className="rounded-none flex relative w-full md:w-auto mt-3 md:mt-0">
-    <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-      <p className="text-sm">Available Now</p>
-    </div>
-    <div className="flex flex-col p-4 pt-12">
-      <p className="font-bold text-sm">Mobilio 2018</p>
-    </div>
-    <img 
-      src="/mobilio.png" 
-      alt="mobilio" 
-      className="h-24 w-55 ml-auto mt-4" 
-    />
-  </Card>
-</div>
+            <Card className="rounded-none flex relative w-full md:w-auto mt-3 md:mt-0">
+              <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
+                <p className="text-sm">Available Now</p>
+              </div>
+              <div className="flex flex-col p-4 pt-12">
+                <p className="font-bold text-sm">Mobilio 2018</p>
+              </div>
+              <img 
+                src="/mobilio.png" 
+                alt="mobilio" 
+                className="h-24 w-55 ml-auto mt-4" 
+              />
+            </Card>
+          </div>
 
 
           <div className="flex flex-col">
