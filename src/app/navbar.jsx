@@ -58,12 +58,12 @@ export default function Navbar() {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem>
                                     {status === 'authenticated' ? (
-                                        <button className="flex items-center p-1 rounded-md hover:bg-gray-100" onClick={handleSignOut}>
+                                        <button className="flex items-center p-1 rounded-md hover:bg-gray-100 w-full" onClick={handleSignOut}>
                                             <LogOut className="mr-2 h-4 w-4" />
                                             Log Out
                                         </button>
                                     ) : (
-                                        <button className="flex items-center p-1 rounded-md hover:bg-gray-100" onClick={() => router.push("/sign-in")}>
+                                        <button className="flex items-center p-1 rounded-md hover:bg-gray-100 w-full" onClick={() => router.push("/sign-in")}>
                                             <LogIn className="mr-2 h-4 w-4" />
                                             Log In
                                         </button>
