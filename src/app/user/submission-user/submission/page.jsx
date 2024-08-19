@@ -1,14 +1,19 @@
 'use client'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Slash } from "lucide-react";
+import { CalendarIcon, Slash } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function Pengajuan() {
+    const [date, setDate] = useState()
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Breadcrumb>
@@ -68,7 +73,28 @@ export default function Pengajuan() {
                                                 <div className="flex flex-col lg:flex-row justify-between items-center">
                                                     <div className="w-full lg:w-[48%] mb-4 lg:mb-0">
                                                         <Label className="block text-sm mb-2 font-semibold">Waktu Peminjaman</Label>
-                                                        <Input type="text" />
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-[280px] justify-start text-left font-normal",
+                                                                    !date && "text-muted-foreground"
+                                                                )}
+                                                                >
+                                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0">
+                                                                <Calendar
+                                                                mode="single"
+                                                                selected={date}
+                                                                onSelect={setDate}
+                                                                initialFocus
+                                                                />
+                                                            </PopoverContent>
+                                                            </Popover>
                                                     </div>
                                                     <div className="w-full lg:w-[48%]">
                                                         <Label className="block text-sm mb-2 font-semibold">Waktu Pengembalian</Label>

@@ -114,7 +114,7 @@ export default function UserManagement() {
                             </Table>
                     </CardContent>
                       <hr className="mb-4" />
-                    <CardFooter>
+                    <CardFooter className="flex w-full">
                       <Pagination>
                         <PaginationContent>
                           <PaginationItem className="">
@@ -145,7 +145,7 @@ export default function UserManagement() {
                           <PaginationItem>
                             <PaginationLink href="#">10</PaginationLink>
                           </PaginationItem>
-                          <PaginationItem>
+                          <PaginationItem className="flex justify-end">
                             <PaginationNext href="#" />
                           </PaginationItem>
                         </PaginationContent>

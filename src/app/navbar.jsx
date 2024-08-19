@@ -1,14 +1,21 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LogOut } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const disabledNavbar = ["/sign-in"];
 
 export default function Navbar() {
+    const router = useRouter();
+    const { status, data: session } = useSession();
     const pathname = usePathname();
+
+    const handleSignOut = () => {
+        signOut({ callbackUrl: '/sign-in' }); // Redirect to login page after sign out
+    };
 
     const routes = [
         {
@@ -50,8 +57,17 @@ export default function Navbar() {
                                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem>
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        <span>Log out</span>
+                                    {status === 'authenticated' ? (
+                                        <button className="flex items-center p-1 rounded-md hover:bg-gray-100" onClick={handleSignOut}>
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            Log Out
+                                        </button>
+                                    ) : (
+                                        <button className="flex items-center p-1 rounded-md hover:bg-gray-100" onClick={() => router.push("/sign-in")}>
+                                            <LogIn className="mr-2 h-4 w-4" />
+                                            Log In
+                                        </button>
+                                    )}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
