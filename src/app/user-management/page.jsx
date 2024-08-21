@@ -16,19 +16,19 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { useSession } from "next-auth/react";
-import { fetchUsers } from "../apiService";
+import { fetchUsers, removeUsers } from "../apiService";
 
 export default function UserManagement() {
     const { data: session } = useSession();
     const token = session?.user?.token;
     const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
     const [data, setData] = useState([])
+    const [selectedUserId, setSelectedUserId] = useState(null);
 
     useEffect(() => {
       const loadData = async () => {
         try {
           const usersData = await fetchUsers({ token});
-          console.log(usersData)
           setData(usersData.data.data);
         } catch (error) {
           console.error('Failed to fetch data:', error);
@@ -38,7 +38,22 @@ export default function UserManagement() {
         loadData();
       }
     }, [token]);
+
+    const handleDelete = async () => {
+      try {
+        await removeUsers({ id: selectedUserId, token });
+        setIsDeleteAlertOpen(false);
+        setData((prevData) => prevData.filter((user) => user.id !== selectedUserId)); // Hapus user dari data setelah berhasil menghapus
+      } catch (error) {
+        console.error('Gagal menghapus data:', error);
+      }
+    };
     
+    const openDeleteAlert = (userId) => {
+      setSelectedUserId(userId);
+      setIsDeleteAlertOpen(true);
+    };
+
     return(
         <div className="w-full max-w-7xl mx-auto">
             <div className="flex items-center">
@@ -90,8 +105,8 @@ export default function UserManagement() {
                                     </div>
                                     </TableCell>
                                     <TableCell>{user.rolename}</TableCell>
-                                    <TableCell className="text-right flex justify-end">
-                                        <Button variant="outline" onClick={() => setIsDeleteAlertOpen(true)} className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Hapus</Button>
+                                    <TableCell className="text-right flex justify-end items-center">
+                                        <Button variant="outline" onClick={() => openDeleteAlert(user.id)} className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Hapus</Button>
                                         <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>
                                           <Link href="/user-management/update-user">
                                                 Edit
@@ -118,7 +133,7 @@ export default function UserManagement() {
                                               <hr className="w-full" />
                                             <AlertDialogFooter className="w-full">
                                               <AlertDialogCancel onClick={() => setIsDeleteAlertOpen(false)} className="font-semibold">Kembali</AlertDialogCancel>
-                                              <AlertDialogAction className="bg-red-600 text-white">Hapus</AlertDialogAction>
+                                              <AlertDialogAction onClick={handleDelete} className="bg-red-600 text-white">Hapus</AlertDialogAction>
                                             </AlertDialogFooter>
                                           </AlertDialogContent>
                                         </AlertDialog>

@@ -64,3 +64,21 @@ export const fetchCar = async ({ token }) => {
           return "abs"
         }
       };
+
+      export const removeUsers = async ({ id, token }) => {
+        
+        try {
+          const response = await fetch(`${BASE_URL}/api/users/delete/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) {
+            throw new Error('Failed to remove item');
+          }
+          return await response.json();
+        } catch (error) {
+          console.error('Error removing item:', error);
+        }
+      };
