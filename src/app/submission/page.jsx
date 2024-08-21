@@ -17,9 +17,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { acceptApplicant, fetchApplicantAdmin } from "../apiService";
 import { useSession } from "next-auth/react";
+import { TailSpin } from "react-loader-spinner";
 
 
 export default function SubmissionAdmin() {
+  const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
   const token = session?.user?.token;
   const [data, setData] = useState([])
@@ -47,6 +49,12 @@ export default function SubmissionAdmin() {
     const handleAccept = async (id) => {
       try {
         await acceptApplicant({ id, token });
+        // Update state data to reflect the new status
+        setData((prevData) =>
+          prevData.map((applicant) =>
+            applicant.id === id ? { ...applicant, status: 'Disetujui' } : applicant
+          )
+        );
       } catch (error) {
         console.error('Error accepting applicant:', error);
       }
@@ -203,7 +211,18 @@ export default function SubmissionAdmin() {
                                         </DialogFooter>
                                       </DialogContent>
                                     </Dialog>
-                                    <Button variant="primary" onClick={() => handleAccept(applicant.id)} className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>Setujui</Button>
+                                    <Button variant="primary" onClick={() => handleAccept(applicant.id)} disabled={isLoading} className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>
+                                    {isLoading ? (
+                                        <TailSpin
+                                        height="20"
+                                        width="20"
+                                        color="#ffffff"
+                                        ariaLabel="loading"
+                                        />
+                                    ) : (
+                                        "Setujui"
+                                    )}
+                                    </Button>
                                   </div>
                                 ) : (
                                   <p className="text-sm font-semibold">{applicant.status}</p>
