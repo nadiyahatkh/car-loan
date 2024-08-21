@@ -9,36 +9,41 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { FolderXIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { TriangleAlert } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { fetchApplicantAdmin } from "../apiService";
+import { useSession } from "next-auth/react";
 
 
 export default function SubmissionAdmin() {
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const [data, setData] = useState([])
   const [date, setDate] = useState({
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
   })
-    const invoices = [
-        {
-          name: "INV005",
-          paymentStatus: "Paid",
-          paymentMethod: "PayPal",
-        },
-        {
-          name: "INV006",
-          paymentStatus: "Pending",
-          paymentMethod: "Bank Transfer",
-        },
-        {
-          name: "INV007",
-          paymentStatus: "Unpaid",
-          paymentMethod: "Credit Card",
-        },
-      ]
+
+  useEffect(() => {
+    const submissionData = async () => {
+      try {
+        const applicantData = await fetchApplicantAdmin({ token });
+        console.log(applicantData); 
+        setData(applicantData.dataApplicant.data);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+  
+      if (token) {
+        submissionData();
+      }
+    }, [token]);
+
     return (
         <div className=" w-full max-w-7xl mx-auto">
         <div className="flex items-center space-x-3 mb-5">
@@ -150,35 +155,61 @@ export default function SubmissionAdmin() {
                           </TableRow>
                       </TableHeader>
                       <TableBody>
-                          {invoices.map((invoice) => (
-                          <TableRow key={invoice.invoice}>
-                              <TableCell className="text-sm">{invoice.name}</TableCell>
-                              <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
-                              <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
-                              <TableCell className="text-sm">{invoice.paymentStatus}</TableCell>
+                          {Array.isArray(data) && data.length > 0 ? (
+                            data.map((applicant) => (
+                          <TableRow key={applicant.id}>
+                              <TableCell className="text-sm">{applicant.purpose}</TableCell>
+                              <TableCell className="text-sm">{applicant.submission_date}</TableCell>
+                              <TableCell className="text-sm">{applicant.expiry_date}</TableCell>
                               <TableCell className="">
-                                  <Dialog>
-                                  <DialogTrigger asChild>
-                                      <Button variant="outline" className="mr-2 shadow-md h-8 w-[30%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Tolak</Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="sm:max-w-md">
-                                  <div className="grid w-full gap-1.5">
-                                      <Label htmlFor="message-2">Alasan Penolakan</Label>
-                                      <Textarea id="message-2" />
-                                      <p className="text-sm text-muted-foreground">
-                                          Tuliskan alasan penolakan pengajuan
-                                      </p>
+                                <div className="flex items-center space-x-4">
+                                      <img
+                                        src={applicant.path}
+                                        alt={applicant.name}
+                                        className="rounded-full w-10 h-10"
+                                      />
+                                      <div>
+                                        <p className="text-base font-semibold">{applicant.name}</p>
+                                        <p className="text-sm text-muted-foreground">{applicant.email}</p>
                                       </div>
-                                      <DialogFooter className="">
-                                          <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                          <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
-                                      </DialogFooter>
-                                  </DialogContent>
-                                  </Dialog>
-                                  <Button variant="primary" className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>Setujui</Button>
+                                    </div>
+                              </TableCell>
+                              <TableCell className="">
+                              {applicant.status === 'Belum Disetujui' ? (
+                          <div className="flex space-x-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" className="mr-2 shadow-md h-8 w-[30%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Tolak</Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-md">
+                                <div className="grid w-full gap-1.5">
+                                  <Label htmlFor="message-2">Alasan Penolakan</Label>
+                                  <Textarea id="message-2" />
+                                  <p className="text-sm text-muted-foreground">
+                                    Tuliskan alasan penolakan pengajuan
+                                  </p>
+                                </div>
+                                <DialogFooter className="">
+                                  <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                  <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                            <Button variant="primary" className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>Setujui</Button>
+                          </div>
+                        ) : (
+                          <p className="text-sm font-semibold">{applicant.status}</p>
+                        )}
                               </TableCell>
                           </TableRow>
-                          ))}
+                          ))
+                        ):(
+                            <TableRow>
+                                    <TableCell colSpan={5} className="text-center text-sm">
+                                        No submissions available.
+                                    </TableCell>
+                                </TableRow>
+                          )}
                       </TableBody>
                   </Table>
                 </CardContent>
