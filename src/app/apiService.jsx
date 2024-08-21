@@ -19,6 +19,7 @@ export const fetchCar = async ({ token }) => {
     }
   };
 
+//   API USER
   export const fetchApplicantUser = async ({token}) => {
     try {
     //   const statusParams = status.map(s => `status[]=${s}`).join('&');
@@ -41,3 +42,25 @@ export const fetchCar = async ({ token }) => {
         return "abs";
       }
     };
+
+    // API ADMIN
+    export const fetchUsers = async ({token}) => {
+        try {
+          const response = await fetch(`${BASE_URL}/api/users`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          })
+          .then((res) => res.json())
+          .then((data) => {
+           return {
+            data: data,
+            message: "successs"
+           }
+          })
+          return response.data
+        } catch (error) {
+          console.error(error);
+          return "abs"
+        }
+      };

@@ -12,6 +12,8 @@ export default function Navbar() {
     const router = useRouter();
     const { status, data: session } = useSession();
     const pathname = usePathname();
+    const userRole = session?.user?.role;
+    
 
     const handleSignOut = () => {
         signOut({ callbackUrl: '/sign-in' }); // Redirect to login page after sign out
@@ -22,18 +24,23 @@ export default function Navbar() {
             href: `/submission`,
             label: `Pengajuan`,
             active: pathname.startsWith(`/submission`),
+            roles: [1]
         },
         {
             href: `/user/submission-user`,
             label: `Pengajuan`,
             active: pathname.startsWith(`/user/submission-user`),
+            roles:[2]
         },
         {
             href: `/user-management`,
             label: `User Manajemen`,
             active: pathname.startsWith(`/user-management`),
+            roles: [1]
         }
     ];
+
+    const filteredRoutes = routes.filter(route => route.roles.includes(userRole));
 
     
 
@@ -75,7 +82,7 @@ export default function Navbar() {
                     </div>
                         <hr className="mb-4 border-gray-700" />
                         <div className="flex items-center space-x-3">
-                        {routes.map((route) => (
+                        {filteredRoutes.map((route) => (
                             <Link key={route.href} href={route.href} className="flex items-center">
                                 <Button
                                     variant="outline"

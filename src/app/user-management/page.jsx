@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { TriangleAlert } from "lucide-react";
 import {
@@ -15,27 +15,30 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { useSession } from "next-auth/react";
+import { fetchUsers } from "../apiService";
 
 export default function UserManagement() {
-  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
+    const { data: session } = useSession();
+    const token = session?.user?.token;
+    const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
+    const [data, setData] = useState([])
 
-    const invoices = [
-        {
-          name: "INV005",
-          paymentStatus: "Paid",
-          paymentMethod: "PayPal",
-        },
-        {
-          name: "INV006",
-          paymentStatus: "Pending",
-          paymentMethod: "Bank Transfer",
-        },
-        {
-          name: "INV007",
-          paymentStatus: "Unpaid",
-          paymentMethod: "Credit Card",
-        },
-      ]
+    useEffect(() => {
+      const loadData = async () => {
+        try {
+          const usersData = await fetchUsers({ token});
+          console.log(usersData)
+          setData(usersData.data.data);
+        } catch (error) {
+          console.error('Failed to fetch data:', error);
+        }
+      };
+      if (token) {
+        loadData();
+      }
+    }, [token]);
+    
     return(
         <div className="w-full max-w-7xl mx-auto">
             <div className="flex items-center">
@@ -65,16 +68,28 @@ export default function UserManagement() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                <TableHead className="w-[100px]">Name</TableHead>
+                                <TableHead className="">Name</TableHead>
                                 <TableHead>Role</TableHead>
                                 <TableHead className="text-right"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {invoices.map((invoice) => (
-                                <TableRow key={invoice.invoice}>
-                                    <TableCell className="font-medium">{invoice.name}</TableCell>
-                                    <TableCell>{invoice.paymentStatus}</TableCell>
+                                {data.map((user) => (
+                                <TableRow key={user.user}>
+                                    <TableCell className="">
+                                    <div className="flex items-center space-x-4">
+                                      <img
+                                        src={user.path} // Replace with actual image path or placeholder
+                                        alt={user.Fullname}
+                                        className="rounded-full w-10 h-10"
+                                      />
+                                      <div>
+                                        <p className="text-base font-semibold">{user.Fullname}</p>
+                                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                                      </div>
+                                    </div>
+                                    </TableCell>
+                                    <TableCell>{user.rolename}</TableCell>
                                     <TableCell className="text-right flex justify-end">
                                         <Button variant="outline" onClick={() => setIsDeleteAlertOpen(true)} className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Hapus</Button>
                                         <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>
@@ -101,7 +116,7 @@ export default function UserManagement() {
                                               </div>
                                               </AlertDialogHeader>
                                               <hr className="w-full" />
-                                            <AlertDialogFooter className="bg-gray-100 w-full">
+                                            <AlertDialogFooter className="w-full">
                                               <AlertDialogCancel onClick={() => setIsDeleteAlertOpen(false)} className="font-semibold">Kembali</AlertDialogCancel>
                                               <AlertDialogAction className="bg-red-600 text-white">Hapus</AlertDialogAction>
                                             </AlertDialogFooter>

@@ -166,8 +166,8 @@ export default function SubmissionUser(){
                                             statusTextClass = "text-red-500";
                                             break;
                                         case "Belum Disetujui":
-                                            statusIcon = <RefreshCcwIcon className="h-4 w-4 text-black" />;
-                                            statusTextClass = "text-black";
+                                            statusIcon = <RefreshCcwIcon className="h-4 w-4 font-semibold text-black" />;
+                                            statusTextClass = "font-semibold text-black";
                                             break;
                                         default:
                                             statusIcon = null;
