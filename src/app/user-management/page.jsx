@@ -105,8 +105,8 @@ export default function UserManagement() {
                                     </div>
                                     </TableCell>
                                     <TableCell>{user.rolename}</TableCell>
-                                    <TableCell className="text-right flex justify-end items-center">
-                                        <Button variant="outline" onClick={() => openDeleteAlert(user.id)} className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Hapus</Button>
+                                    <TableCell className="text-right">
+                                        <Button variant="outline" onClick={() => openDeleteAlert(user.id)} className="mr-2 h-8 w-[15%] border bg-gray-200" style={{ color: "#3758C7" }} >Hapus</Button>
                                         <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>
                                           <Link href="/user-management/update-user">
                                                 Edit
@@ -123,9 +123,9 @@ export default function UserManagement() {
 
                                                 {/* Title and Description */}
                                                 <div className="ml-4">
-                                                  <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                                                  <AlertDialogTitle>Hapus Akun</AlertDialogTitle>
                                                   <AlertDialogDescription>
-                                                    Anda bisa saja ingin menolak pengajuan ini
+                                                    Apakah anda yakin ingin menghapus item.
                                                   </AlertDialogDescription>
                                                 </div>
                                               </div>
