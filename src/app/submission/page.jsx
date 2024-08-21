@@ -15,7 +15,7 @@ import { TriangleAlert } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { fetchApplicantAdmin } from "../apiService";
+import { acceptApplicant, fetchApplicantAdmin } from "../apiService";
 import { useSession } from "next-auth/react";
 
 
@@ -43,6 +43,14 @@ export default function SubmissionAdmin() {
         submissionData();
       }
     }, [token]);
+
+    const handleAccept = async (id) => {
+      try {
+        await acceptApplicant({ id, token });
+      } catch (error) {
+        console.error('Error accepting applicant:', error);
+      }
+    };
 
     return (
         <div className=" w-full max-w-7xl mx-auto">
@@ -176,30 +184,30 @@ export default function SubmissionAdmin() {
                               </TableCell>
                               <TableCell className="">
                               {applicant.status === 'Belum Disetujui' ? (
-                          <div className="flex space-x-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" className="mr-2 shadow-md h-8 w-[30%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Tolak</Button>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-md">
-                                <div className="grid w-full gap-1.5">
-                                  <Label htmlFor="message-2">Alasan Penolakan</Label>
-                                  <Textarea id="message-2" />
-                                  <p className="text-sm text-muted-foreground">
-                                    Tuliskan alasan penolakan pengajuan
-                                  </p>
-                                </div>
-                                <DialogFooter className="">
-                                  <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                  <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                            <Button variant="primary" className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>Setujui</Button>
-                          </div>
-                        ) : (
-                          <p className="text-sm font-semibold">{applicant.status}</p>
-                        )}
+                                  <div className="flex space-x-2">
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button variant="outline" className="mr-2 shadow-md h-8 w-[30%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Tolak</Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="sm:max-w-md">
+                                        <div className="grid w-full gap-1.5">
+                                          <Label htmlFor="message-2">Alasan Penolakan</Label>
+                                          <Textarea id="message-2" />
+                                          <p className="text-sm text-muted-foreground">
+                                            Tuliskan alasan penolakan pengajuan
+                                          </p>
+                                        </div>
+                                        <DialogFooter className="">
+                                          <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                          <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                        </DialogFooter>
+                                      </DialogContent>
+                                    </Dialog>
+                                    <Button variant="primary" onClick={() => handleAccept(applicant.id)} className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>Setujui</Button>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm font-semibold">{applicant.status}</p>
+                                )}
                               </TableCell>
                           </TableRow>
                           ))

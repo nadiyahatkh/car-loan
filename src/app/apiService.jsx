@@ -65,6 +65,32 @@ export const fetchCar = async ({ token }) => {
             return "abs";
           }
         };
+    
+        export const acceptApplicant = async ({ id, token }) => {
+            const response = await fetch(`${BASE_URL}/api/Applicant/accepted/${id}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json', // Tambahkan Content-Type jika diperlukan
+              },
+            });
+          
+            if (!response.ok) {
+              throw new Error('Failed to accept applicant');
+            }
+          
+            // Coba respons sebagai teks terlebih dahulu untuk memeriksa apakah kosong
+            const textResponse = await response.text();
+          
+            if (textResponse === '') {
+              // Respons kosong, mungkin Anda ingin mengembalikan sesuatu yang lain
+              throw new Error('Empty response');
+            }
+          
+            // Parse respons sebagai JSON
+            return JSON.parse(textResponse);
+          };
+          
 
     export const fetchUsers = async ({token}) => {
         try {
