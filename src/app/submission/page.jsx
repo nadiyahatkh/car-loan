@@ -7,7 +7,7 @@ import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, Tabl
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
-import { FolderXIcon } from "lucide-react";
+import { CheckCheck, FolderXIcon, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -21,9 +21,10 @@ import { TailSpin } from "react-loader-spinner";
 
 
 export default function SubmissionAdmin() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState({});
   const { data: session } = useSession();
   const token = session?.user?.token;
+  const [cars, setCars] = useState([])
   const [data, setData] = useState([])
   const [date, setDate] = useState({
     from: new Date(2022, 0, 20),
@@ -36,6 +37,7 @@ export default function SubmissionAdmin() {
         const applicantData = await fetchApplicantAdmin({ token });
         console.log(applicantData); 
         setData(applicantData.dataApplicant.data);
+        setCars(applicantData.car)
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
@@ -47,50 +49,45 @@ export default function SubmissionAdmin() {
     }, [token]);
 
     const handleAccept = async (id) => {
+      setLoadingStatus((prevState) => ({ ...prevState, [id]: true })); // Set loading untuk applicant yang sedang diproses
       try {
         await acceptApplicant({ id, token });
-        // Update state data to reflect the new status
-        setData((prevData) =>
-          prevData.map((applicant) =>
-            applicant.id === id ? { ...applicant, status: 'Disetujui' } : applicant
-          )
-        );
+        
+        // Ambil data terbaru dari API
+        const applicantData = await fetchApplicantAdmin({ token });
+        setData(applicantData.dataApplicant.data);
+        setCars(applicantData.car);
+  
       } catch (error) {
         console.error('Error accepting applicant:', error);
+      } finally {
+        setLoadingStatus((prevState) => ({ ...prevState, [id]: false })); // Set loading ke false setelah proses selesai
       }
-    };
+  };
 
     return (
         <div className=" w-full max-w-7xl mx-auto">
         <div className="flex items-center space-x-3 mb-5">
             
-            <Card className="rounded-none flex relative">
-                <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-                    <p className="text-sm">Available Now</p>
-                </div>
-                <div className="flex flex-col p-4 pt-12">
-                    <p className="font-bold text-sm">Avanza Veloz 2022</p>
-                </div>
-                <img 
-                    src="veloc.png" 
-                    alt="veloc" 
-                    className="h-24 w-55 ml-auto mt-4" 
-                />
+        {Array.isArray(cars) && cars.length > 0 ? (
+          cars.map((car) => (
+            <Card key={car.id} className="rounded-none flex relative w-full md:w-auto">
+              <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
+                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>{car.status_name}</p>
+              </div>
+              <div className="flex flex-col p-4 pt-12">
+                <p className="font-bold text-sm">{car.name}</p>
+              </div>
+              <img 
+                src={car.path}
+                alt={car.name} 
+                className="h-24 w-55 ml-auto mt-4" 
+              />
             </Card>
-
-            <Card className="rounded-none flex relative">
-                <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-                    <p className="text-sm">Available Now</p>
-                </div>
-                <div className="flex flex-col p-4 pt-12">
-                    <p className="font-bold text-sm">Mobilio 2018</p>
-                </div>
-                <img 
-                    src="mobilio.png" 
-                    alt="mobilio" 
-                    className="h-24 w-55 ml-auto mt-4" 
-                />
-            </Card>
+          ))
+        ) : (
+          <p>No cars available.</p>  // Fallback if cars array is empty
+        )}
         </div>
 
         <div className="flex items-center space-x-3 mb-5">
@@ -211,18 +208,38 @@ export default function SubmissionAdmin() {
                                         </DialogFooter>
                                       </DialogContent>
                                     </Dialog>
-                                    <Button variant="primary" onClick={() => handleAccept(applicant.id)} disabled={isLoading} className="text-white h-8 w-[30%]" style={{ background: "#4F46E5" }}>
-                                    {isLoading ? (
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => handleAccept(applicant.id)}
+                                      disabled={loadingStatus[applicant.id]} // Disable tombol saat loading
+                                      className="mr-2 shadow-md h-8 w-[30%]"
+                                      style={{ background: "#D1D5DB", color: "#3758C7" }}
+                                    >
+                                      {loadingStatus[applicant.id] ? (
                                         <TailSpin
-                                        height="20"
-                                        width="20"
-                                        color="#ffffff"
-                                        ariaLabel="loading"
+                                          height="15"
+                                          width="15"
+                                          color="#3758C7"
+                                          ariaLabel="tail-spin-loading"
+                                          radius="1"
+                                          wrapperStyle={{}}
+                                          wrapperClass=""
+                                          visible={true}
                                         />
-                                    ) : (
-                                        "Setujui"
-                                    )}
+                                      ) : (
+                                        'Setujui'
+                                      )}
                                     </Button>
+                                  </div>
+                                ) : applicant.status === 'Disetujui' ? (
+                                  <div className="flex items-center space-x-2">
+                                    <CheckCheck className="w-4 h-4 text-green-500" />
+                                    <p className="text-sm font-semibold text-green-500">Disetujui</p>
+                                  </div>
+                                ) : applicant.status === 'DiTolak' ? (
+                                  <div className="flex items-center space-x-2">
+                                    <XCircleIcon className="w-4 h-4 text-red-500" />
+                                    <p className="text-sm font-semibold text-red-500">Ditolak</p>
                                   </div>
                                 ) : (
                                   <p className="text-sm font-semibold">{applicant.status}</p>
