@@ -1,40 +1,58 @@
 'use client'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Copy, Slash } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Slash } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { acceptApplicant, fetchApplicantAdminDetail } from "@/app/apiService";
+import { format } from "date-fns";
+import { id as localeId } from 'date-fns/locale';
 
 export default function DetailSubmission() {
     const { data: session } = useSession();
     const token = session?.user?.token;
-    const [detail, setDetail] = useState();
-    const { id } = useParams();
+    const { id: submissionId } = useParams();
+    const router = useRouter();
 
+    const [detail, setDetail] = useState();
 
     useEffect(() => {
         const loadDetail = async () => {
-          if (token && id) {
-            const response = await fetchApplicantDetail({ token, id });
-            setDetail(response?.data);
+          if (token && submissionId) {
+            const response = await fetchApplicantAdminDetail({ token, id: submissionId });
+            setDetail(response.data.dataApplicant);
           }
         };
-    
         loadDetail();
-      }, [token, id]);
+      }, [token, submissionId]);
+
+    const handleAccept = async () => {
+        try {
+          await acceptApplicant({ id: submissionId, token });
+          router.push('/submission');
+        } catch (error) {
+          console.error('Error accepting applicant:', error);
+        }
+    };
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return format(date, "d MMMM yyyy, HH:mm 'WIB'", { locale: localeId });
+    }
 
     return (
+        <>
         <div className="w-full max-w-7xl mx-auto">
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/user-management">
+                        <BreadcrumbLink href="/submission">
                             <img src="/home.png" alt="Home" />
                         </BreadcrumbLink>
                     </BreadcrumbItem>
@@ -48,11 +66,9 @@ export default function DetailSubmission() {
             </Breadcrumb>
 
             <div className="mt-4">
-                {/* Personal Information Card */}
                 <Card className="w-3/4 rounded-none">
                     <CardHeader>
                         <div className="flex flex-row items-start">
-                            {/* Text Section */}
                             <div className="w-[45%]">
                                 <div className="text-base font-semibold">
                                     Detail Pengajuan
@@ -63,67 +79,72 @@ export default function DetailSubmission() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="">
-                    <hr />
+                    <CardContent>
+                        <hr />
                         <div className="divide-y divide-gray-100">
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Pengaju</div>
-                                <div className="w-2/4">Lindsay Walton</div>
+                                <div className="w-2/4">{detail?.name}</div>
                             </div>
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Waktu Pengajuan</div>
-                                <div className="w-2/4">21 Agustus 2024, 10:00 WIB</div>
+                                <div className="w-2/4">{formatDate(detail?.submission_date)}</div>
                             </div>
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Waktu Pengembalian (Estimasi)</div>
-                                <div className="w-2/4">21 Agustus 2024, 12:00 WIB</div>
+                                <div className="w-2/4">{formatDate(detail?.expiry_date)}</div>
                             </div>
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Tujuan</div>
                                 <div className="w-2/4">
                                     <p className="font-semibold">Peminjaman Mobil</p>
-                                    Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa
-                                    consequat. Excepteur qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in
-                                    ea officia proident. Irure nostrud pariatur mollit ad adipisicing reprehenderit deserunt qui
-                                    eu.
+                                    {detail?.purpose}
                                 </div>
                             </div>
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Status</div>
-                                <div className="w-2/4">Ditolak</div>
+                                <div className="w-2/4">{detail?.status}</div>
                             </div>
+
+                            {detail?.status === 'DiTolak' && (
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Catatan</div>
                                 <div className="w-2/4">
-                                    <p className="mb-3">-</p>
-                                    <div>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="outline" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Tolak</Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="sm:max-w-md">
-                                        <div className="grid w-full gap-1.5">
-                                            <Label htmlFor="message-2">Alasan Penolakan</Label>
-                                            <Textarea id="message-2" />
-                                            <p className="text-sm text-muted-foreground">
-                                                Tuliskan alasan penolakan pengajuan
-                                            </p>
-                                            </div>
-                                            <DialogFooter className="">
-                                                <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                        </Dialog>
-                                        
-                                        <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Setujui</Button>
-                                    </div>
+                                    <p className="mb-3">{detail?.notes || "-"}</p>
                                 </div>
                             </div>
+                            )}
+
+                            {detail?.status !== 'Disetujui' && detail?.status !== 'DiTolak' && (
+                                <div className="flex justify-center items-center py-4 text-sm">
+                                    <div className="w-2/4">
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button variant="outline" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Tolak</Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-md">
+                                                <div className="grid w-full gap-1.5">
+                                                    <Label htmlFor="message-2">Alasan Penolakan</Label>
+                                                    <Textarea id="message-2" />
+                                                    <p className="text-sm text-muted-foreground">
+                                                        Tuliskan alasan penolakan pengajuan
+                                                    </p>
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                    <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                        <Button variant="primary" onClick={handleAccept} className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Setujui</Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
             </div>
         </div>
+        </>
     )
 }

@@ -65,6 +65,25 @@ export const fetchCar = async ({ token }) => {
             return "abs";
           }
         };
+
+        export const fetchApplicantAdminDetail = async ({ token, id }) => {
+          try {
+            const response = await fetch(`${BASE_URL}/api/data/applicants/${id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              }
+            });
+        
+            const data = await response.json();
+            return {
+              data,
+              message: "success"
+            };
+          } catch (error) {
+            console.error(error);
+            return null;
+          }
+        };
     
         export const acceptApplicant = async ({ id, token }) => {
             const response = await fetch(`${BASE_URL}/api/Applicant/accepted/${id}`, {
