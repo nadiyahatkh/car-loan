@@ -5,12 +5,30 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 
 export default function DetailSubmission() {
-    const [isDialogTolakOpen, setIsDialogTolakOpen] = useState(false)
+    const { data: session } = useSession();
+    const token = session?.user?.token;
+    const [detail, setDetail] = useState();
+    const { id } = useParams();
+
+
+    useEffect(() => {
+        const loadDetail = async () => {
+          if (token && id) {
+            const response = await fetchApplicantDetail({ token, id });
+            setDetail(response?.data);
+          }
+        };
+    
+        loadDetail();
+      }, [token, id]);
+
     return (
         <div className="w-full max-w-7xl mx-auto">
             <Breadcrumb>

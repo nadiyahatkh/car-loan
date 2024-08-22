@@ -15,12 +15,14 @@ import { TriangleAlert } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { acceptApplicant, fetchApplicantAdmin } from "../apiService";
+import { acceptApplicant, denyApplicant, fetchApplicantAdmin } from "../apiService";
 import { useSession } from "next-auth/react";
 import { TailSpin } from "react-loader-spinner";
+import { useRouter } from "next/navigation";
 
 
 export default function SubmissionAdmin() {
+  const router = useRouter();
   const [loadingStatus, setLoadingStatus] = useState({});
   const { data: session } = useSession();
   const token = session?.user?.token;
@@ -64,6 +66,27 @@ export default function SubmissionAdmin() {
         setLoadingStatus((prevState) => ({ ...prevState, [id]: false })); // Set loading ke false setelah proses selesai
       }
   };
+
+        const handleDeny = async (id) => {
+          setLoadingStatus((prevState) => ({ ...prevState, [id]: true })); // Set loading untuk applicant yang sedang diproses
+          try {
+            await denyApplicant({ id, token });
+            
+            // Ambil data terbaru dari API
+            const applicantData = await fetchApplicantAdmin({ token });
+            setData(applicantData.dataApplicant.data);
+            setCars(applicantData.car);
+
+          } catch (error) {
+            console.error('Error deny applicant:', error);
+          } finally {
+            setLoadingStatus((prevState) => ({ ...prevState, [id]: false })); // Set loading ke false setelah proses selesai
+          }
+      };
+
+      const handleRowClick = (id) => {
+        router.push(`/submission/detail-submission/${id}`);
+      };
 
     return (
         <div className=" w-full max-w-7xl mx-auto">
@@ -170,7 +193,7 @@ export default function SubmissionAdmin() {
                       <TableBody>
                           {Array.isArray(data) && data.length > 0 ? (
                             data.map((applicant) => (
-                          <TableRow key={applicant.id}>
+                          <TableRow key={applicant.id} onClick={() => handleRowClick(applicant.id)}>
                               <TableCell className="text-sm">{applicant.purpose}</TableCell>
                               <TableCell className="text-sm">{applicant.submission_date}</TableCell>
                               <TableCell className="text-sm">{applicant.expiry_date}</TableCell>

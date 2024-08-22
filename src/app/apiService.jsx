@@ -90,28 +90,43 @@ export const fetchCar = async ({ token }) => {
             // Parse respons sebagai JSON
             return JSON.parse(textResponse);
           };
+
+          export const denyApplicant = async ({id, token}) => {
+            const response = await fetch(`${BASE_URL}/api/data/Applicant/denied/${id}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              }
+            });
+          
+            if (!response.ok) {
+              throw new Error('Failed to deny applicant');
+            }
+          
+            return await response.json();
+          };
           
 
-    export const fetchUsers = async ({token}) => {
-        try {
-          const response = await fetch(`${BASE_URL}/api/users`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
+        export const fetchUsers = async ({token}) => {
+            try {
+              const response = await fetch(`${BASE_URL}/api/users`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                }
+              })
+              .then((res) => res.json())
+              .then((data) => {
+              return {
+                data: data,
+                message: "successs"
+              }
+              })
+              return response.data
+            } catch (error) {
+              console.error(error);
+              return "abs"
             }
-          })
-          .then((res) => res.json())
-          .then((data) => {
-           return {
-            data: data,
-            message: "successs"
-           }
-          })
-          return response.data
-        } catch (error) {
-          console.error(error);
-          return "abs"
-        }
-      };
+          };
 
       export const removeUsers = async ({ id, token }) => {
         
