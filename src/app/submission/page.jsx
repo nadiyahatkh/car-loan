@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { acceptApplicant, denyApplicant, fetchApplicantAdmin } from "../apiService";
 import { useSession } from "next-auth/react";
-import { TailSpin } from "react-loader-spinner";
+import { Hearts, TailSpin } from "react-loader-spinner";
 import { useRouter } from "next/navigation";
 
 
@@ -28,6 +28,9 @@ export default function SubmissionAdmin() {
   const token = session?.user?.token;
   const [cars, setCars] = useState([])
   const [data, setData] = useState([])
+  const [notes, setNotes] = useState('');
+  const [currentApplicantId, setCurrentApplicantId] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false); 
   const [date, setDate] = useState({
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
@@ -67,23 +70,28 @@ export default function SubmissionAdmin() {
       }
   };
 
-        const handleDeny = async (id) => {
-          setLoadingStatus((prevState) => ({ ...prevState, [id]: true })); // Set loading untuk applicant yang sedang diproses
-          try {
-            await denyApplicant({ id, token });
-            
-            // Ambil data terbaru dari API
-            const applicantData = await fetchApplicantAdmin({ token });
-            setData(applicantData.dataApplicant.data);
-            setCars(applicantData.car);
+  const handleDeny = async (event) => {
+    event.preventDefault(); // Prevent default form submission
 
-          } catch (error) {
-            console.error('Error deny applicant:', error);
-          } finally {
-            setLoadingStatus((prevState) => ({ ...prevState, [id]: false })); // Set loading ke false setelah proses selesai
-          }
-      };
+    if (!currentApplicantId || !notes) return; // Ensure we have an ID and notes
 
+    setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: true }));
+    try {
+      await denyApplicant({ id: currentApplicantId, token, notes });
+
+      const applicantData = await fetchApplicantAdmin({ token });
+      setData(applicantData.dataApplicant.data);
+      setCars(applicantData.car);
+
+      setNotes(''); // Clear notes after submission
+      setCurrentApplicantId(null); // Reset current applicant ID
+      setIsDialogOpen(false); 
+    } catch (error) {
+      console.error('Error denying applicant:', error);
+    } finally {
+      setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: false }));
+    }
+  };
       const handleRowClick = (id) => {
         router.push(`/submission/detail-submission/${id}`);
       };
@@ -193,7 +201,7 @@ export default function SubmissionAdmin() {
                       <TableBody>
                           {Array.isArray(data) && data.length > 0 ? (
                             data.map((applicant) => (
-                          <TableRow key={applicant.id} onClick={() => handleRowClick(applicant.id)}>
+                          <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                               <TableCell className="text-sm">{applicant.purpose}</TableCell>
                               <TableCell className="text-sm">{applicant.submission_date}</TableCell>
                               <TableCell className="text-sm">{applicant.expiry_date}</TableCell>
@@ -213,41 +221,82 @@ export default function SubmissionAdmin() {
                               <TableCell className="">
                               {applicant.status === 'Belum Disetujui' ? (
                                   <div className="flex space-x-2">
-                                    <Dialog>
+                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                       <DialogTrigger asChild>
-                                        <Button variant="outline" className="mr-2 shadow-md h-8 w-[30%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Tolak</Button>
+                                        <Button 
+                                          variant="outline" 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCurrentApplicantId(applicant.id); // Set the current applicant ID
+                                          }}
+                                          className="mr-2 shadow-md h-8 w-[30%]" 
+                                          style={{ background: "#D1D5DB", color: "#3758C7" }}
+                                        >
+                                          Tolak
+                                        </Button>
                                       </DialogTrigger>
                                       <DialogContent className="sm:max-w-md">
+                                      <DialogHeader>
+                                        <DialogTitle>Alasan Penolakan</DialogTitle>
+                                      </DialogHeader>
+                                      <form onSubmit={handleDeny}>
                                         <div className="grid w-full gap-1.5">
-                                          <Label htmlFor="message-2">Alasan Penolakan</Label>
-                                          <Textarea id="message-2" />
+                                          <Textarea
+                                            id="notes"
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                          />
                                           <p className="text-sm text-muted-foreground">
                                             Tuliskan alasan penolakan pengajuan
                                           </p>
                                         </div>
                                         <DialogFooter className="">
-                                          <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                          <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                          <Button
+                                            type="button" 
+                                            variant="outline" 
+                                            onClick={(e) => {
+                                              e.stopPropagation(); // Stop event bubbling
+                                              setIsDialogOpen(false);
+                                            }}
+                                            className="mr-2 shadow-md h-8 w-[20%]" 
+                                            style={{ background: "#D1D5DB", color: "#3758C7" }}
+                                          >
+                                            Kembali
+                                          </Button>
+                                          <Button 
+                                            type="submit"
+                                            variant="primary"
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="text-white h-8 w-[20%]"
+                                            style={{ background: "#4F46E5" }}
+                                            disabled={loadingStatus[currentApplicantId]}
+                                          >
+                                            {loadingStatus[currentApplicantId] ? (
+                                              <Hearts height="15" width="15" color="#ffffff" ariaLabel="hearts-loading" />
+                                            ) : (
+                                              'Simpan'
+                                            )}
+                                          </Button>
                                         </DialogFooter>
+                                      </form>
                                       </DialogContent>
                                     </Dialog>
                                     <Button
                                       variant="outline"
-                                      onClick={() => handleAccept(applicant.id)}
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Stop event bubbling
+                                        handleAccept(applicant.id);
+                                      }}
                                       disabled={loadingStatus[applicant.id]} // Disable tombol saat loading
-                                      className="mr-2 shadow-md h-8 w-[30%]"
-                                      style={{ background: "#D1D5DB", color: "#3758C7" }}
+                                      className="mr-2 h-8 w-[30%] text-white"
+                                      style={{ background: "#4F46E5" }}
                                     >
                                       {loadingStatus[applicant.id] ? (
-                                        <TailSpin
+                                        <Hearts
                                           height="15"
                                           width="15"
-                                          color="#3758C7"
-                                          ariaLabel="tail-spin-loading"
-                                          radius="1"
-                                          wrapperStyle={{}}
-                                          wrapperClass=""
-                                          visible={true}
+                                          color="#ffffff"
+                                          ariaLabel="hearts-loading"
                                         />
                                       ) : (
                                         'Setujui'
@@ -259,7 +308,7 @@ export default function SubmissionAdmin() {
                                     <CheckCheck className="w-4 h-4 text-green-500" />
                                     <p className="text-sm font-semibold text-green-500">Disetujui</p>
                                   </div>
-                                ) : applicant.status === 'DiTolak' ? (
+                                ) : applicant.status === 'Ditolak' ? (
                                   <div className="flex items-center space-x-2">
                                     <XCircleIcon className="w-4 h-4 text-red-500" />
                                     <p className="text-sm font-semibold text-red-500">Ditolak</p>

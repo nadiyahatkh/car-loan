@@ -6,9 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Hearts } from "react-loader-spinner";
 
 export default function SignIn () {
-    const router = useRouter();
+  const router = useRouter();
   const [value, setValue] = useState({
     email: "",
     password: "",
@@ -99,7 +100,20 @@ export default function SignIn () {
                             </div>
                             <Link href="/forgot-password" className="text-sm text-blue-700 hover:underline">Forgot password?</Link>
                         </div>
-                        <button type="submit" style={{ background: "#4F46E5" }} className="w-full py-2 px-4 text-sm text-white rounded-md hover:bg-blue-600 transition duration-200">Sign In</button>
+                        <button type="submit" style={{ background: "#4F46E5" }} className="w-full py-2 px-4 text-sm text-white rounded-md hover:bg-blue-600 transition duration-200">
+                        {isSubmitting ? (
+                            <div className="flex justify-center">
+                            <Hearts
+                              height="20"
+                              width="20"
+                              color="#ffffff"
+                              ariaLabel="hearts-loading"
+                            />
+                          </div>
+                            ) : (
+                                "Sign In"
+                            )}
+                        </button>
                     </form>
                 </div>
             </div>

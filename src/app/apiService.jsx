@@ -43,6 +43,25 @@ export const fetchCar = async ({ token }) => {
       }
     };
 
+    export const fetchApplicantUserDetail = async ({ token, id }) => {
+      try {
+        const response = await fetch(`${BASE_URL}/api/Applicant/detail/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+    
+        const data = await response.json();
+        return {
+          data,
+          message: "success"
+        };
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    };
+
     // API ADMIN
     export const fetchApplicantAdmin = async ({token}) => {
         try {
@@ -110,12 +129,16 @@ export const fetchCar = async ({ token }) => {
             return JSON.parse(textResponse);
           };
 
-          export const denyApplicant = async ({id, token}) => {
-            const response = await fetch(`${BASE_URL}/api/data/Applicant/denied/${id}`, {
+          export const denyApplicant = async ({ id, token, notes }) => {
+            const formData = new FormData();
+            formData.append('notes', notes);
+          
+            const response = await fetch(`${BASE_URL}/api/Applicant/denied/${id}`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${token}`,
-              }
+              },
+              body: formData,
             });
           
             if (!response.ok) {
@@ -124,6 +147,7 @@ export const fetchCar = async ({ token }) => {
           
             return await response.json();
           };
+          
           
 
         export const fetchUsers = async ({token}) => {

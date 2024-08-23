@@ -19,6 +19,8 @@ export default function DetailSubmission() {
     const { id: submissionId } = useParams();
     const router = useRouter();
 
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
+
     const [detail, setDetail] = useState();
 
     useEffect(() => {
@@ -106,7 +108,7 @@ export default function DetailSubmission() {
                                 <div className="w-2/4">{detail?.status}</div>
                             </div>
 
-                            {detail?.status === 'DiTolak' && (
+                            {detail?.status === 'Ditolak' && (
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Catatan</div>
                                 <div className="w-2/4">
@@ -115,7 +117,7 @@ export default function DetailSubmission() {
                             </div>
                             )}
 
-                            {detail?.status !== 'Disetujui' && detail?.status !== 'DiTolak' && (
+                            {detail?.status !== 'Disetujui' && detail?.status !== 'Ditolak' && (
                                 <div className="flex justify-center items-center py-4 text-sm">
                                     <div className="w-2/4">
                                         <Dialog>
@@ -131,8 +133,8 @@ export default function DetailSubmission() {
                                                     </p>
                                                 </div>
                                                 <DialogFooter>
-                                                    <Button variant="outline" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                    <Button variant="primary" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                    <Button variant="outline" type="button" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                    <Button variant="primary" type="submit" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>

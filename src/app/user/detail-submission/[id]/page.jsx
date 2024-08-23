@@ -1,3 +1,4 @@
+"use client"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Copy, Slash } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -6,8 +7,36 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { fetchApplicantUserDetail } from "@/app/apiService";
+import { useEffect, useState } from "react";
+import { id as localeId } from 'date-fns/locale';
+import { format } from "date-fns";
 
 export default function DetailSubmissionUser() {
+    const { data: session } = useSession();
+    const token = session?.user?.token;
+    const { id: submissionId } = useParams();
+    const [detail, setDetail] = useState();
+
+    useEffect(() => {
+        const loadDetail = async () => {
+          if (token && submissionId) {
+            const response = await fetchApplicantUserDetail({ token, id: submissionId });
+            console.log(response)
+            setDetail(response.data.dataApplicant);
+          }
+        };
+        loadDetail();
+      }, [token, submissionId]);
+
+
+      function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return format(date, "d MMMM yyyy, HH:mm 'WIB'", { locale: localeId });
+    }
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Breadcrumb>
@@ -47,36 +76,33 @@ export default function DetailSubmissionUser() {
                         <div className="divide-y divide-gray-100">
                             <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-full lg:w-1/4">Pengaju</div>
-                                <div className="w-full lg:w-2/4">Lindsay Walton</div>
+                                <div className="w-full lg:w-2/4">{detail?.name}</div>
                             </div>
                             <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-full lg:w-1/4">Waktu Pengajuan</div>
-                                <div className="w-full lg:w-2/4">21 Agustus 2024, 10:00 WIB</div>
+                                <div className="w-full lg:w-2/4">{formatDate(detail?.submission_date)}</div>
                             </div>
                             <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-full lg:w-1/4">Waktu Pengembalian (Estimasi)</div>
-                                <div className="w-full lg:w-2/4">21 Agustus 2024, 12:00 WIB</div>
+                                <div className="w-full lg:w-2/4">{formatDate(detail?.expiry_date)}</div>
                             </div>
                             <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-full lg:w-1/4">Tujuan</div>
                                 <div className="w-full lg:w-2/4">
                                     <p className="font-semibold">Peminjaman Mobil</p>
                                     <p>
-                                        Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa
-                                        consequat. Excepteur qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in
-                                        ea officia proident. Irure nostrud pariatur mollit ad adipisicing reprehenderit deserunt qui
-                                        eu.
+                                        {detail?.purpose}
                                     </p>
                                 </div>
                             </div>
                             <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-full lg:w-1/4">Status</div>
-                                <div className="w-full lg:w-2/4">Ditolak</div>
+                                <div className="w-full lg:w-2/4">{detail?.status}</div>
                             </div>
                             <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-full lg:w-1/4">Catatan</div>
                                 <div className="w-full lg:w-2/4">
-                                    <p className="mb-3">-</p>
+                                    <p className="mb-3">{detail?.notes || "-"}</p>
                                 </div>
                             </div>
                         </div>

@@ -18,8 +18,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchApplicantUser, fetchCar } from "@/app/apiService";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SubmissionUser(){
+    const router = useRouter();
     const { data: session } = useSession();
     const token = session?.user?.token;
     const [data, setData] = useState([])
@@ -58,6 +60,10 @@ export default function SubmissionUser(){
             submissionData();
           }
         }, [token]);
+
+        const handleRowClick = (id) => {
+            router.push(`/user/detail-submission/${id}`);
+          };
 
   return(
       <div className="w-full max-w-7xl mx-auto">
@@ -176,7 +182,7 @@ export default function SubmissionUser(){
                                     }
 
                                     return (
-                                        <TableRow key={applicant.id}>
+                                        <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                                             <TableCell className="text-sm">{applicant.purpose}</TableCell>
                                             <TableCell className="text-sm">
                                                 {applicant.submission_date ? format(new Date(applicant.submission_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: id }) : '-'}
