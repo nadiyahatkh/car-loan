@@ -5,22 +5,24 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { acceptApplicant, fetchApplicantAdminDetail } from "@/app/apiService";
+import { acceptApplicant, denyApplicant, fetchApplicantAdminDetail } from "@/app/apiService";
 import { format } from "date-fns";
 import { id as localeId } from 'date-fns/locale';
+import { Hearts } from "react-loader-spinner";
 
 export default function DetailSubmission() {
     const { data: session } = useSession();
     const token = session?.user?.token;
     const { id: submissionId } = useParams();
     const router = useRouter();
-
+    const [notes, setNotes] = useState('');
+    const [currentApplicantId, setCurrentApplicantId] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false)
-
+    const [loadingStatus, setLoadingStatus] = useState({});
     const [detail, setDetail] = useState();
 
     useEffect(() => {
@@ -41,6 +43,26 @@ export default function DetailSubmission() {
           console.error('Error accepting applicant:', error);
         }
     };
+
+    const handleDeny = async (event) => {
+        event.preventDefault(); // Prevent default form submission
+    
+        if (!currentApplicantId || !notes) return; // Ensure we have an ID and notes
+    
+        setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: true }));
+        try {
+          await denyApplicant({ id: currentApplicantId, token, notes });
+    
+          
+        } catch (error) {
+          console.error('Error denying applicant:', error);
+        } finally {
+          setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: false }));
+          setNotes(''); // Clear notes after submission
+          setCurrentApplicantId(null); // Reset current applicant ID
+          setIsDialogOpen(false); 
+        }
+      };
 
     function formatDate(dateString) {
         if (!dateString) return '';
@@ -120,22 +142,50 @@ export default function DetailSubmission() {
                             {detail?.status !== 'Disetujui' && detail?.status !== 'Ditolak' && (
                                 <div className="flex justify-center items-center py-4 text-sm">
                                     <div className="w-2/4">
-                                        <Dialog>
+                                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                             <DialogTrigger asChild>
-                                                <Button variant="outline" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }} >Tolak</Button>
+                                                <Button 
+                                                    variant="outline" 
+                                                    className="mr-2 shadow-md h-8 w-[15%]" 
+                                                    onClick={() => setCurrentApplicantId(detail.id)}
+                                                    style={{ background: "#D1D5DB", color: "#3758C7" }} 
+                                                >
+                                                    Tolak
+                                                </Button>
                                             </DialogTrigger>
                                             <DialogContent className="sm:max-w-md">
-                                                <div className="grid w-full gap-1.5">
-                                                    <Label htmlFor="message-2">Alasan Penolakan</Label>
-                                                    <Textarea id="message-2" />
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Tuliskan alasan penolakan pengajuan
-                                                    </p>
-                                                </div>
+                                                <DialogHeader>
+                                                    <DialogTitle>Alasan Penolakan</DialogTitle>
+                                                </DialogHeader>
+                                                <form onSubmit={handleDeny}>
+                                                    <div className="grid w-full gap-1.5">
+                                                        <Textarea
+                                                            id="notes"
+                                                            value={notes}
+                                                            onChange={(e) => setNotes(e.target.value)}
+                                                        />
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Tuliskan alasan penolakan pengajuan
+                                                        </p>
+                                                    </div>
                                                 <DialogFooter>
-                                                    <Button variant="outline" type="button" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                    <Button variant="primary" type="submit" className="text-white h-8 w-[20%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                    <Button variant="outline" onClick={() => setIsDialogOpen(false)} type="button" className="mr-2 shadow-md h-8 w-[20%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                    <Button 
+                                                        type="submit"
+                                                        variant="primary"
+                                                        className="text-white h-8 w-[20%]"
+                                                        style={{ background: "#4F46E5" }}
+                                                        disabled={loadingStatus[currentApplicantId]}
+                                                      >
+                                                        {loadingStatus[currentApplicantId] ? (
+                                                          <Hearts height="15" width="15" color="#ffffff" ariaLabel="hearts-loading" />
+                                                        ) : (
+                                                          'Simpan'
+                                                        )}
+                                                    </Button>
                                                 </DialogFooter>
+
+                                                </form>
                                             </DialogContent>
                                         </Dialog>
                                         <Button variant="primary" onClick={handleAccept} className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Setujui</Button>
