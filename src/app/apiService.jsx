@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const fetchCar = async ({ token }) => {
@@ -40,6 +42,35 @@ export const fetchCar = async ({ token }) => {
       } catch (error) {
         console.error(error);
         return "abs";
+      }
+    };
+
+    export const createApplicantUser = async ({ data, token }) => {
+      try {
+        const formData = new FormData();
+        formData.append('purpose', data.purpose);
+        formData.append('car_id', data.asset_id);
+        formData.append('submission_date', format(data.submission_date, 'yyyy-MM-dd'));
+        formData.append('expiry_date', format(data.expiry_date, 'yyyy-MM-dd'));
+    
+        const response = await fetch(`${BASE_URL}/api/Applicant/create`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        });
+    
+        if (!response.ok) {
+          const result = await response.text();
+          throw new Error(result);
+        }
+    
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.log('Error creating applicant:', error);
+        throw error;
       }
     };
 
@@ -168,6 +199,39 @@ export const fetchCar = async ({ token }) => {
             } catch (error) {
               console.error(error);
               return "abs"
+            }
+          };
+
+          export const createUsers = async ({ data, token }) => {
+        
+            try {
+              const formData = new FormData();
+              formData.append('name', data.name);
+              formData.append('email', data.email);
+              formData.append('password', data.password);
+              formData.append('nip', data.nip);
+              formData.append('department_id', data.department_id);
+              formData.append('position_id', data.position_id);
+    
+          
+              const response = await fetch('${BASE_URL}/api/users/create', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: formData,
+              });
+          
+              if (!response.ok) {
+                const result = await response.text();
+                throw new Error(result);
+              }
+          
+              const result = await response.json();
+              return result;
+            } catch (error) {
+              console.log('Error creating aset:', error);
+              throw error;
             }
           };
 

@@ -5,8 +5,32 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { createUsers } from "@/app/apiService";
+
 
 export default function AddUser() {
+
+    const onSubmit = async (data) => {
+        // data.departement_id = departmentId;
+        // data.position_id = positionId
+        // setIsLoading(true);
+        try {
+          const result = await createUsers({ data, token });
+          console.log(result)
+          
+        //   setOpenSuccess(true)
+        } catch (error) {
+          const message = JSON.parse(error.message)
+        //   setErrorMessages(Object.values(message.error).flat());
+        //   setOpenError(true)
+          console.error('Error creating employee:', error);
+        } finally {
+        //   setIsLoading(false);
+        }
+      };     
+    
     return (
         <div className="w-full max-w-7xl mx-auto">
             <Breadcrumb>

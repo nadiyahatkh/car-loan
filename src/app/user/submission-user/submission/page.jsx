@@ -8,12 +8,64 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { Form } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
+import { createApplicantUser, fetchCar } from "@/app/apiService";
+
+const FormSchema = z.object({
+    purpose: z.string().min(1, { message: "purpose is required." }),
+    car_id: z.string().min(1, { message: "car wajib diisi." }),
+    submission_date: z.date().optional(),
+    expiry_date: z.date().optional(),
+})
 
 export default function Pengajuan() {
+    const { data: session } = useSession();
+    const token = session?.user?.token;
+    const [errorMessages, setErrorMessages] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [cars, setCars] = useState([])
+    const form = useForm({
+        resolver: zodResolver(FormSchema),
+    });
     const [date, setDate] = useState()
+
+    useEffect(() => {
+        const loadData = async () => {
+          try {
+            const response = await fetchCar({ token });
+            setCars(response.data.data);
+          } catch (error) {
+            console.error('Failed to fetch data:', error);
+          }
+        };
+        if (token) {
+          loadData();
+        }
+    }, [token]);
+
+    const onSubmit= async (data) => {
+        data.asset_id = assetId;
+        setIsLoading(true)
+        try{
+            const result = await createApplicantUser({data, token, path: selectedFiles.map(file => file.file) });
+            
+            setOpenSuccess(true)
+        } catch (error) {
+            const message = JSON.parse(error.message)
+            setErrorMessages(Object.values(message.error).flat());
+            setOpenError(true)
+            console.error('Error creating asset:', error);
+        } finally {
+            setIsLoading(false);
+          }
+    }
     return (
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Breadcrumb>
@@ -50,65 +102,65 @@ export default function Pengajuan() {
                             {/* Form Card */}
                             <div className="w-full lg:w-[80%] ml-0 lg:ml-auto mt-6 lg:mt-0">
                                 <Card>
-                                    <form action="">
-                                        <CardContent className="pe-9 py-2">
-                                            <div className="mb-4">
-                                                <Label className="block text-sm mb-2 font-semibold">Tujuan Peminjaman Mobil</Label>
-                                                <Textarea type="text" className="w-full" />
-                                            </div>
-                                            <div className="mb-4">
-                                                <p className="font-bold text-sm mb-2">Type Mobil</p>
-                                                <RadioGroup defaultValue="comfortable" className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
-                                                    <div className="space-x-2">
-                                                        <RadioGroupItem value="default" id="r1" />
-                                                        <Label htmlFor="r1">Mobilio 2018</Label>
-                                                    </div>
-                                                    <div className="space-x-2">
-                                                        <RadioGroupItem value="comfortable" id="r2" />
-                                                        <Label htmlFor="r2">Avanza Veloz 2022</Label>
-                                                    </div>
-                                                </RadioGroup>
-                                            </div>
-                                            <div className="mb-4">
-                                                <div className="flex flex-col lg:flex-row justify-between items-center">
-                                                    <div className="w-full lg:w-[48%] mb-4 lg:mb-0">
-                                                        <Label className="block text-sm mb-2 font-semibold">Waktu Peminjaman</Label>
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button
-                                                                variant={"outline"}
-                                                                className={cn(
-                                                                    "w-[280px] justify-start text-left font-normal",
-                                                                    !date && "text-muted-foreground"
-                                                                )}
-                                                                >
-                                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                                {date ? format(date, "PPP") : <span>Pick a date</span>}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0">
-                                                                <Calendar
-                                                                mode="single"
-                                                                selected={date}
-                                                                onSelect={setDate}
-                                                                initialFocus
-                                                                />
-                                                            </PopoverContent>
-                                                            </Popover>
-                                                    </div>
-                                                    <div className="w-full lg:w-[48%]">
-                                                        <Label className="block text-sm mb-2 font-semibold">Waktu Pengembalian</Label>
-                                                        <Input type="text" />
+                                    <Form {...form}>
+                                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                                            <CardContent className="pe-9 py-2">
+                                                <div className="mb-4">
+                                                    <Label className="block text-sm mb-2 font-semibold">Tujuan Peminjaman Mobil</Label>
+                                                    <Textarea type="text" className="w-full" />
+                                                </div>
+                                                <div className="mb-4">
+                                                    <p className="font-bold text-sm mb-2">Type Mobil</p>
+                                                    <RadioGroup defaultValue="comfortable" className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
+                                                    {cars?.map(car => (
+                                                        <div key={car.id} className="space-x-2">
+                                                            <RadioGroupItem value={car.id} id={`car-${car.id}`} />
+                                                            <Label htmlFor={`car-${car.id}`}>{car.name}</Label>
+                                                        </div>
+                                                    ))}
+                                                    </RadioGroup>
+                                                </div>
+                                                <div className="mb-4">
+                                                    <div className="flex flex-col lg:flex-row justify-between items-center">
+                                                        <div className="w-full lg:w-[48%] mb-4 lg:mb-0">
+                                                            <Label className="block text-sm mb-2 font-semibold">Waktu Peminjaman</Label>
+                                                            <Popover>
+                                                                <PopoverTrigger asChild>
+                                                                    <Button
+                                                                    variant={"outline"}
+                                                                    className={cn(
+                                                                        "w-[280px] justify-start text-left font-normal",
+                                                                        !date && "text-muted-foreground"
+                                                                    )}
+                                                                    >
+                                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                                                    </Button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-auto p-0">
+                                                                    <Calendar
+                                                                    mode="single"
+                                                                    selected={date}
+                                                                    onSelect={setDate}
+                                                                    initialFocus
+                                                                    />
+                                                                </PopoverContent>
+                                                                </Popover>
+                                                        </div>
+                                                        <div className="w-full lg:w-[48%]">
+                                                            <Label className="block text-sm mb-2 font-semibold">Waktu Pengembalian</Label>
+                                                            <Input type="text" />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </CardContent>
-                                        <hr className="mb-4" />
-                                        <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-2">
-                                            <Button variant="outline" className="shadow-md h-10 w-full sm:w-auto" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                            <Button variant="primary" className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
-                                        </CardFooter>
-                                    </form>
+                                            </CardContent>
+                                            <hr className="mb-4" />
+                                            <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-2">
+                                                <Button variant="outline" className="shadow-md h-10 w-full sm:w-auto" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                <Button variant="primary" className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                            </CardFooter>
+                                        </form>
+                                    </Form>
                                 </Card>
                             </div>
                         </div>

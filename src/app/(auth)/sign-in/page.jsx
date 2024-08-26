@@ -42,7 +42,7 @@ export default function SignIn () {
       if (res && !res.error) {
         const session = await getSession();
         const userRole = session?.user?.role;
-        const redirectUrl = +userRole === 1 ? '/submission' : '/';
+        const redirectUrl = +userRole === 1 ? '/submission' : '/user/submission-user';
         router.push(redirectUrl);
       } else {
         setError("Invalid email or password");
