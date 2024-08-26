@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { Form, FormField } from "@/components/ui/form";
+import { Form, FormControl, FormField } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,7 +54,7 @@ export default function Pengajuan() {
     const onSubmit= async (data) => {
         setIsLoading(true)
         try{
-            const result = await createApplicantUser({data, token, path: selectedFiles.map(file => file.file) });
+            const result = await createApplicantUser({data, token });
             
             setOpenSuccess(true)
         } catch (error) {
@@ -124,7 +124,7 @@ export default function Pengajuan() {
                                                         control={form.control}
                                                         name="car_id"
                                                         render={({field}) => (
-                                                            <RadioGroup defaultValue="comfortable" className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
+                                                            <RadioGroup {...field} onValueChange={field.onChange} className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
                                                             {cars?.map(car => (
                                                                 <div key={car.id} className="space-x-2">
                                                                     <RadioGroupItem value={car.id} id={`car-${car.id}`} />
@@ -132,11 +132,58 @@ export default function Pengajuan() {
                                                                 </div>
                                                             ))}
                                                             </RadioGroup>
-                                                            
                                                         )}
                                                     />
                                                 </div>
                                                 <div className="mb-4">
+                                                <div className="flex justify-between items-center">
+                                                    <div className="w-full mr-2">
+                                                    <Label className="block text-sm mb-2">Tanggal Pengajuan</Label>
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="submission_date"
+                                                        render={({ field }) => (
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih tanggal pengajuan</span>}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                </Button>
+                                                            </FormControl>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date('1900-01-01') || date > new Date('2100-12-31')} initialFocus />
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        )}
+                                                    />
+                                                    </div>
+                                                    <div className="w-full ml-2">
+                                                    <Label className="block text-sm mb-2">Jangka Waktu</Label>
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="expiry_date"
+                                                        render={({ field }) => (
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih Jangka Waktu</span>}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                </Button>
+                                                            </FormControl>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date('1900-01-01') || date > new Date('2100-12-31')} initialFocus />
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        )}
+                                                    />
+                                                    </div>
+                                                </div>
+                                                </div>
+                                                {/* <div className="mb-4">
                                                     <div className="flex flex-col lg:flex-row justify-between items-center">
                                                         <div className="w-full lg:w-[48%] mb-4 lg:mb-0">
                                                             <Label className="block text-sm mb-2 font-semibold">Waktu Peminjaman</Label>
@@ -168,12 +215,12 @@ export default function Pengajuan() {
                                                             <Input type="text" />
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> */}
                                             </CardContent>
                                             <hr className="mb-4" />
                                             <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-2">
                                                 <Button type="button" variant="outline" className="shadow-md h-10 w-full sm:w-auto" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                <Button type="submit" variant="primary" className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                <Button type="submit" variant="primary" onClick={() => console.log(form)} className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
                                             </CardFooter>
                                         </form>
                                     </Form>
