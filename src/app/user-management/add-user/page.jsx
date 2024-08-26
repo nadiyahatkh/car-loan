@@ -8,7 +8,16 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { createUsers } from "@/app/apiService";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormField } from "@/components/ui/form";
 
+const FormSchema = z.object({
+    FirstName: z.string().min(1, { message: "FirstName is required." }),
+    LastName: z.string().min(1, { message: "LastName is required." }),
+    email: z.string().min(1, { message: "Email is required." }),
+    password: z.string().min(1, { message: "Password wajib diisi." }),
+    password_confirmation: z.string().min(1, { message: "Password wajib diisi." }),
+  });
 
 export default function AddUser() {
 
@@ -30,6 +39,10 @@ export default function AddUser() {
         //   setIsLoading(false);
         }
       };     
+
+      const form = useForm({
+        resolver: zodResolver(FormSchema),
+    });
     
     return (
         <div className="w-full max-w-7xl mx-auto">
@@ -67,66 +80,76 @@ export default function AddUser() {
                             {/* Form Card */}
                             <div className="w-[80%] ml-auto">
                                 <Card>
-                                    <form action="">
-                                        <CardContent className="pe-9 py-2">
-                                                <div className="mb-4">
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="w-full mr-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">First Name</Label>
-                                                            <Input type="text" />
-                                                        </div>
-                                                        <div className="w-full ml-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Last Name</Label>
-                                                            <Input type="text" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="mb-4">
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="w-full mr-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Email Address</Label>
-                                                            <Input type="text" />
-                                                        </div>
-                                                        <div className="w-full ml-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Role</Label>
-                                                            <Input type="text" />
+                                    <Form {...form}>
+                                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                                            <CardContent className="pe-9 py-2">
+                                                    <div className="mb-4">
+                                                        <div className="flex justify-between items-center">
+                                                            <div className="w-full mr-2">
+                                                                <Label className="block text-sm mb-2 font-semibold">First Name</Label>
+                                                                <FormField
+                                                                    control={form.control}
+                                                                    name="FirstName"
+                                                                    render={({field}) => (
+                                                                        <Input {...field} type="text" />
+
+                                                                    )}
+                                                                />
+                                                            </div>
+                                                            <div className="w-full ml-2">
+                                                                <Label className="block text-sm mb-2 font-semibold">Last Name</Label>
+                                                                <Input type="text" />
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div className="mb-4">
-                                                    <p className="font-bold text-sm mb-2">Photo</p>
-                                                    <div className="flex items-center">
-                                                    <img src="" name="foto" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
-                                                        <input
-                                                            name="foto"
-                                                            type="file"
-                                                            accept="image/*"
-                                                            style={{ display: 'none' }}
-                                                            id="fileInput"
-                                                        />
-                                                            <button type="button" onClick={() => document.getElementById('fileInput').click()} className="px-4 py-2 font-semibold shadow-sm border rounded-md">Change</button>
-                                                    </div>
-                                                </div>
-                                                <div className="mb-4">
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="w-full mr-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Password</Label>
-                                                            <Input type="password" />
-                                                        </div>
-                                                        <div className="w-full ml-2">
-                                                            <Label className="block text-sm mb-2 font-semibold">Password Confirmation</Label>
-                                                            <Input type="password" />
+                                                    <div className="mb-4">
+                                                        <div className="flex justify-between items-center">
+                                                            <div className="w-full mr-2">
+                                                                <Label className="block text-sm mb-2 font-semibold">Email Address</Label>
+                                                                <Input type="text" />
+                                                            </div>
+                                                            <div className="w-full ml-2">
+                                                                <Label className="block text-sm mb-2 font-semibold">Role</Label>
+                                                                <Input type="text" />
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                
-                                        </CardContent>
-                                            <hr className="mb-4" />
-                                            <CardFooter className="flex justify-end">
-                                                <Button variant="outline" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Simpan</Button>
-                                            </CardFooter>
-                                    </form>
+                                                    <div className="mb-4">
+                                                        <p className="font-bold text-sm mb-2">Photo</p>
+                                                        <div className="flex items-center">
+                                                        <img src="" name="foto" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
+                                                            <input
+                                                                name="foto"
+                                                                type="file"
+                                                                accept="image/*"
+                                                                style={{ display: 'none' }}
+                                                                id="fileInput"
+                                                            />
+                                                                <button type="button" onClick={() => document.getElementById('fileInput').click()} className="px-4 py-2 font-semibold shadow-sm border rounded-md">Change</button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mb-4">
+                                                        <div className="flex justify-between items-center">
+                                                            <div className="w-full mr-2">
+                                                                <Label className="block text-sm mb-2 font-semibold">Password</Label>
+                                                                <Input type="password" />
+                                                            </div>
+                                                            <div className="w-full ml-2">
+                                                                <Label className="block text-sm mb-2 font-semibold">Password Confirmation</Label>
+                                                                <Input type="password" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                            </CardContent>
+                                                <hr className="mb-4" />
+                                                <CardFooter className="flex justify-end">
+                                                    <Button variant="outline" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                    <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                </CardFooter>
+                                        </form>
+
+                                    </Form>
                                 </Card>
                             </div>
                         </div>

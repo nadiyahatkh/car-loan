@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import { createApplicantUser, fetchCar } from "@/app/apiService";
 import { format } from "date-fns";
+import Link from "next/link";
 
 const FormSchema = z.object({
     purpose: z.string().min(1, { message: "purpose is required." }),
@@ -136,9 +137,9 @@ export default function Pengajuan() {
                                                     />
                                                 </div>
                                                 <div className="mb-4">
-                                                <div className="flex justify-between items-center">
-                                                    <div className="w-full mr-2">
-                                                    <Label className="block text-sm mb-2">Tanggal Pengajuan</Label>
+                                                <div className="flex flex-col lg:flex-row justify-between items-center">
+                                                    <div className="w-full lg:w-[48%] mb-4 lg:mb-0">
+                                                    <Label className="block text-sm mb-2">Waktu Peminjaman</Label>
                                                     <FormField
                                                         control={form.control}
                                                         name="submission_date"
@@ -147,7 +148,7 @@ export default function Pengajuan() {
                                                             <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih tanggal pengajuan</span>}
+                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih Waktu Peminjaman</span>}
                                                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                                 </Button>
                                                             </FormControl>
@@ -159,8 +160,8 @@ export default function Pengajuan() {
                                                         )}
                                                     />
                                                     </div>
-                                                    <div className="w-full ml-2">
-                                                    <Label className="block text-sm mb-2">Jangka Waktu</Label>
+                                                    <div className="w-full lg:w-[48%]">
+                                                    <Label className="block text-sm mb-2">Waktu Pengembalian</Label>
                                                     <FormField
                                                         control={form.control}
                                                         name="expiry_date"
@@ -169,7 +170,7 @@ export default function Pengajuan() {
                                                             <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih Jangka Waktu</span>}
+                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih Waktu Pengembalian</span>}
                                                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                                 </Button>
                                                             </FormControl>
@@ -219,7 +220,11 @@ export default function Pengajuan() {
                                             </CardContent>
                                             <hr className="mb-4" />
                                             <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-2">
-                                                <Button type="button" variant="outline" className="shadow-md h-10 w-full sm:w-auto" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                <Button type="button" variant="outline" className="shadow-md h-10 w-full sm:w-auto hover:bg-gray-800" style={{ background: "#D1D5DB", color: "#3758C7" }}>
+                                                    <Link href="/user/submission-user" className="w-full">
+                                                     Kembali
+                                                    </Link>
+                                                </Button>
                                                 <Button type="submit" variant="primary" onClick={() => console.log(form)} className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
                                             </CardFooter>
                                         </form>
