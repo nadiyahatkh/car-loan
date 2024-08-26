@@ -31,26 +31,26 @@ export default function SubmissionUser(){
       to: addDays(new Date(2022, 0, 20), 20),
   });
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const response = await fetchCar({ token });
-        setCars(response.data.data);
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      }
-    };
-    if (token) {
-      loadData();
-    }
-    }, [token]);
+//   useEffect(() => {
+//     const loadData = async () => {
+//       try {
+//         const response = await fetchCar({ token });
+//         setCars(response.data.data);
+//       } catch (error) {
+//         console.error('Failed to fetch data:', error);
+//       }
+//     };
+//     if (token) {
+//       loadData();
+//     }
+//     }, [token]);
 
     useEffect(() => {
         const submissionData = async () => {
           try {
             const applicantData = await fetchApplicantUser({ token });
-            console.log(applicantData); 
             setData(applicantData.Applicant.data);
+            setCars(applicantData.car);
           } catch (error) {
             console.error('Failed to fetch data:', error);
           }

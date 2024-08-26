@@ -11,12 +11,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { Form } from "@/components/ui/form";
+import { Form, FormField } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import { createApplicantUser, fetchCar } from "@/app/apiService";
+import { format } from "date-fns";
 
 const FormSchema = z.object({
     purpose: z.string().min(1, { message: "purpose is required." }),
@@ -51,7 +52,6 @@ export default function Pengajuan() {
     }, [token]);
 
     const onSubmit= async (data) => {
-        data.asset_id = assetId;
         setIsLoading(true)
         try{
             const result = await createApplicantUser({data, token, path: selectedFiles.map(file => file.file) });
@@ -67,6 +67,7 @@ export default function Pengajuan() {
           }
     }
     return (
+        <>
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Breadcrumb>
                 <BreadcrumbList>
@@ -107,18 +108,33 @@ export default function Pengajuan() {
                                             <CardContent className="pe-9 py-2">
                                                 <div className="mb-4">
                                                     <Label className="block text-sm mb-2 font-semibold">Tujuan Peminjaman Mobil</Label>
-                                                    <Textarea type="text" className="w-full" />
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="purpose"
+                                                        render={({field}) => (
+                                                            <Textarea {...field} />
+
+                                                        )}
+                                                    
+                                                    />
                                                 </div>
                                                 <div className="mb-4">
                                                     <p className="font-bold text-sm mb-2">Type Mobil</p>
-                                                    <RadioGroup defaultValue="comfortable" className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
-                                                    {cars?.map(car => (
-                                                        <div key={car.id} className="space-x-2">
-                                                            <RadioGroupItem value={car.id} id={`car-${car.id}`} />
-                                                            <Label htmlFor={`car-${car.id}`}>{car.name}</Label>
-                                                        </div>
-                                                    ))}
-                                                    </RadioGroup>
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="car_id"
+                                                        render={({field}) => (
+                                                            <RadioGroup defaultValue="comfortable" className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
+                                                            {cars?.map(car => (
+                                                                <div key={car.id} className="space-x-2">
+                                                                    <RadioGroupItem value={car.id} id={`car-${car.id}`} />
+                                                                    <Label htmlFor={`car-${car.id}`}>{car.name}</Label>
+                                                                </div>
+                                                            ))}
+                                                            </RadioGroup>
+                                                            
+                                                        )}
+                                                    />
                                                 </div>
                                                 <div className="mb-4">
                                                     <div className="flex flex-col lg:flex-row justify-between items-center">
@@ -156,8 +172,8 @@ export default function Pengajuan() {
                                             </CardContent>
                                             <hr className="mb-4" />
                                             <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-2">
-                                                <Button variant="outline" className="shadow-md h-10 w-full sm:w-auto" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                <Button variant="primary" className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                <Button type="button" variant="outline" className="shadow-md h-10 w-full sm:w-auto" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                <Button type="submit" variant="primary" className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
                                             </CardFooter>
                                         </form>
                                     </Form>
@@ -168,5 +184,7 @@ export default function Pengajuan() {
                 </Card>
             </div>
         </div>
+        
+        </>
     )
 }
