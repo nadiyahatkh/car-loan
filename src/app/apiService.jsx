@@ -22,10 +22,10 @@ export const fetchCar = async ({ token }) => {
   };
 
 //   API USER
-  export const fetchApplicantUser = async ({token}) => {
+  export const fetchApplicantUser = async ({token, start_date, end_date}) => {
     try {
     //   const statusParams = status.map(s => `status[]=${s}`).join('&');
-        const response = await fetch(`${BASE_URL}/api/Applicant`, {
+        const response = await fetch(`${BASE_URL}/api/Applicant?start_date=${start_date}&end_date=${end_date}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -50,8 +50,8 @@ export const fetchCar = async ({ token }) => {
         const formData = new FormData();
         formData.append('purpose', data.purpose);
         formData.append('car_id', data.asset_id);
-        formData.append('submission_date', format(data.submission_date, 'yyyy-MM-dd'));
-        formData.append('expiry_date', format(data.expiry_date, 'yyyy-MM-dd'));
+        formData.append('submission_date', format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss"));
+        formData.append('expiry_date', format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss"));
     
         const response = await fetch(`${BASE_URL}/api/Applicant/create`, {
           method: 'POST',
@@ -94,9 +94,9 @@ export const fetchCar = async ({ token }) => {
     };
 
     // API ADMIN
-    export const fetchApplicantAdmin = async ({token}) => {
+    export const fetchApplicantAdmin = async ({token, start_date, end_date}) => {
         try {
-            const response = await fetch(`${BASE_URL}/api/data/applicants`, {
+            const response = await fetch(`${BASE_URL}/api/data/applicants?start_date=${start_date}&end_date=${end_date}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`,
@@ -202,19 +202,21 @@ export const fetchCar = async ({ token }) => {
             }
           };
 
-          export const createUsers = async ({ data, token }) => {
+          export const createUsers = async ({ data, token, file }) => {
         
             try {
               const formData = new FormData();
-              formData.append('name', data.name);
+              formData.append('FirstName', data.FirstName);
+              formData.append('LastName', data.LastName);
               formData.append('email', data.email);
               formData.append('password', data.password);
-              formData.append('nip', data.nip);
-              formData.append('department_id', data.department_id);
-              formData.append('position_id', data.position_id);
+              formData.append('password_confirmation', data.password_confirmation);
+              if (file) {
+                formData.append('path', file);
+            }
     
           
-              const response = await fetch('${BASE_URL}/api/users/create', {
+              const response = await fetch(`${BASE_URL}/api/users/create`, {
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${token}`,
@@ -224,6 +226,7 @@ export const fetchCar = async ({ token }) => {
           
               if (!response.ok) {
                 const result = await response.text();
+                console.log(result)
                 throw new Error(result);
               }
           

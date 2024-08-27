@@ -19,6 +19,11 @@ import { useSession } from "next-auth/react";
 import { createApplicantUser, fetchCar } from "@/app/apiService";
 import { format } from "date-fns";
 import Link from "next/link";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+import { TimePicker } from "@/components/time-picker/time-picker";
+import { useRouter } from "next/navigation";
 
 const FormSchema = z.object({
     purpose: z.string().min(1, { message: "purpose is required." }),
@@ -30,6 +35,7 @@ const FormSchema = z.object({
 export default function Pengajuan() {
     const { data: session } = useSession();
     const token = session?.user?.token;
+    const router = useRouter
     const [errorMessages, setErrorMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [cars, setCars] = useState([])
@@ -53,19 +59,32 @@ export default function Pengajuan() {
     }, [token]);
 
     const onSubmit= async (data) => {
+        const submissionDate = data.submission_date ? format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
+        const expiryDate = data.expiry_date ? format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
+
+        const payload = {
+            ...data,
+            submission_date: submissionDate,
+            expiry_date: expiryDate,
+        };
         setIsLoading(true)
         try{
-            const result = await createApplicantUser({data, token });
-            
+            const result = await createApplicantUser({data: payload, token });
+            router.push("/submission")
             setOpenSuccess(true)
         } catch (error) {
-            const message = JSON.parse(error.message)
-            setErrorMessages(Object.values(message.error).flat());
-            setOpenError(true)
             console.error('Error creating asset:', error);
-        } finally {
-            setIsLoading(false);
-          }
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+                console.error('Response headers:', error.response.headers);
+            } else if (error.request) {
+                console.error('Request data:', error.request);
+            } else {
+                console.error('Error message:', error.message);
+            }
+            setErrorMessages(['Error creating asset.']);
+        }
     }
     return (
         <>
@@ -154,7 +173,16 @@ export default function Pengajuan() {
                                                             </FormControl>
                                                             </PopoverTrigger>
                                                             <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date('1900-01-01') || date > new Date('2100-12-31')} initialFocus />
+                                                            {/* <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date('1900-01-01') || date > new Date('2100-12-31')} initialFocus /> */}
+                                                            <DatePicker
+                                                                selected={field.value}
+                                                                onChange={(date) => field.onChange(date)} // Update value on change
+                                                                showTimeSelect
+                                                                dateFormat="Pp"
+                                                                timeFormat="HH:mm"
+                                                                timeIntervals={15}
+                                                                inline
+                                                            />
                                                             </PopoverContent>
                                                         </Popover>
                                                         )}
@@ -176,7 +204,15 @@ export default function Pengajuan() {
                                                             </FormControl>
                                                             </PopoverTrigger>
                                                             <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date('1900-01-01') || date > new Date('2100-12-31')} initialFocus />
+                                                            <DatePicker
+                                                                selected={field.value}
+                                                                onChange={(date) => field.onChange(date)} // Update value on change
+                                                                showTimeSelect
+                                                                dateFormat="Pp"
+                                                                timeFormat="HH:mm"
+                                                                timeIntervals={15}
+                                                                inline
+                                                            />
                                                             </PopoverContent>
                                                         </Popover>
                                                         )}

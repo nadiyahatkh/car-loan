@@ -19,6 +19,7 @@ import { acceptApplicant, denyApplicant, fetchApplicantAdmin } from "../apiServi
 import { useSession } from "next-auth/react";
 import { Hearts, TailSpin } from "react-loader-spinner";
 import { useRouter } from "next/navigation";
+import { id } from "date-fns/locale";
 
 
 export default function SubmissionAdmin() {
@@ -31,16 +32,19 @@ export default function SubmissionAdmin() {
   const [notes, setNotes] = useState('');
   const [currentApplicantId, setCurrentApplicantId] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false); 
-  const [date, setDate] = useState({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
-  })
+  const defaultDate = {
+    from: new Date(2024, 0, 1),
+    to: new Date(2024, 11, 31)
+  };
+
+  const [date, setDate] = useState(defaultDate);
 
   useEffect(() => {
     const submissionData = async () => {
       try {
-        const applicantData = await fetchApplicantAdmin({ token });
-        console.log(applicantData); 
+        const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
+        const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
+        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date });
         setData(applicantData.dataApplicant.data);
         setCars(applicantData.car)
       } catch (error) {
@@ -51,7 +55,7 @@ export default function SubmissionAdmin() {
       if (token) {
         submissionData();
       }
-    }, [token]);
+    }, [token, date]);
 
     const handleAccept = async (id) => {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true })); // Set loading untuk applicant yang sedang diproses
@@ -94,6 +98,14 @@ export default function SubmissionAdmin() {
   };
       const handleRowClick = (id) => {
         router.push(`/submission/detail-submission/${id}`);
+      };
+
+      const resetDateFilter = () => {
+        setDate(defaultDate);
+      };
+    
+      const isDateDefault = () => {
+        return date.from.getTime() === defaultDate.from.getTime() && date.to.getTime() === defaultDate.to.getTime();
       };
 
     return (
@@ -171,13 +183,11 @@ export default function SubmissionAdmin() {
                       </PopoverContent>
                     </Popover>
 
-                    {/* Conditionally Render Reset Date Filter Button
                     {!isDateDefault() && (
-                      <Button variant="outline" className="text-red-500" style={{ color: '#F9B421', border: 'none' }} onClick={resetDateFilter}>
-                        Reset Date
+                      <Button variant="outline" className="text-red-500" style={{ color: '#4F46E5', border: 'none' }} onClick={resetDateFilter}>
+                          Reset Date
                       </Button>
-                    )} */}
-                    {/* Add Asset Button */}
+                    )}
                     <Button variant="solid" className="text-white flex items-center" style={{ background: "#4F46E5" }}>
                         <Link href="./user-management/add-user" className="flex items-center space-x-2">
                             <img src="/folderX.png" alt="Export Icon" className="w-4 h-4" />
@@ -203,8 +213,12 @@ export default function SubmissionAdmin() {
                             data.map((applicant) => (
                           <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                               <TableCell className="text-sm">{applicant.purpose}</TableCell>
-                              <TableCell className="text-sm">{applicant.submission_date}</TableCell>
-                              <TableCell className="text-sm">{applicant.expiry_date}</TableCell>
+                              <TableCell className="text-sm">
+                              {applicant.submission_date ? format(new Date(applicant.submission_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: id }) : '-'}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                              {applicant.expiry_date ? format(new Date(applicant.expiry_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: id }) : '-'}
+                              </TableCell>
                               <TableCell className="">
                                 <div className="flex items-center space-x-4">
                                       <img

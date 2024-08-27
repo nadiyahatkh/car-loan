@@ -26,10 +26,13 @@ export default function SubmissionUser(){
     const token = session?.user?.token;
     const [data, setData] = useState([])
     const[cars, setCars] = useState([])
-  const [date, setDate] = useState({
-      from: new Date(2022, 0, 20),
-      to: addDays(new Date(2022, 0, 20), 20),
-  });
+
+    const defaultDate = {
+        from: new Date(2024, 0, 1),
+        to: new Date(2024, 11, 31)
+      };
+    
+    const [date, setDate] = useState(defaultDate);
 
 //   useEffect(() => {
 //     const loadData = async () => {
@@ -48,7 +51,9 @@ export default function SubmissionUser(){
     useEffect(() => {
         const submissionData = async () => {
           try {
-            const applicantData = await fetchApplicantUser({ token });
+            const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
+            const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
+            const applicantData = await fetchApplicantUser({ token, start_date, end_date });
             setData(applicantData.Applicant.data);
             setCars(applicantData.car);
           } catch (error) {
@@ -59,10 +64,19 @@ export default function SubmissionUser(){
           if (token) {
             submissionData();
           }
-        }, [token]);
+        }, [token, date]);
 
         const handleRowClick = (id) => {
             router.push(`/user/detail-submission/${id}`);
+          };
+
+
+          const resetDateFilter = () => {
+            setDate(defaultDate);
+          };
+        
+          const isDateDefault = () => {
+            return date.from.getTime() === defaultDate.from.getTime() && date.to.getTime() === defaultDate.to.getTime();
           };
 
   return(
@@ -137,6 +151,11 @@ export default function SubmissionUser(){
                                       />
                                   </PopoverContent>
                               </Popover>
+                              {!isDateDefault() && (
+                                <Button variant="outline" className="text-red-500" style={{ color: '#4F46E5', border: 'none' }} onClick={resetDateFilter}>
+                                    Reset Date
+                                </Button>
+                                )}
                               <Button variant="solid" className="text-white w-full md:w-auto flex items-center" style={{ background: "#4F46E5" }}>
                                   <Link href="/user/submission-user/submission" className="flex items-center space-x-2">
                                       <div className="text-sm">Buat Pengajuan</div>
