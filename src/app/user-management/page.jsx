@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/pagination"
 import { useSession } from "next-auth/react";
 import { fetchUsers, removeUsers } from "../apiService";
+import { Hearts } from "react-loader-spinner";
 
 export default function UserManagement() {
     const { data: session } = useSession();
@@ -24,6 +25,7 @@ export default function UserManagement() {
     const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
     const [data, setData] = useState([])
     const [selectedUserId, setSelectedUserId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
       const loadData = async () => {
@@ -40,13 +42,16 @@ export default function UserManagement() {
     }, [token]);
 
     const handleDelete = async () => {
+      setIsLoading(true)
       try {
         await removeUsers({ id: selectedUserId, token });
         setIsDeleteAlertOpen(false);
         setData((prevData) => prevData.filter((user) => user.id !== selectedUserId)); // Hapus user dari data setelah berhasil menghapus
       } catch (error) {
         console.error('Gagal menghapus data:', error);
-      }
+      } finally {
+        setIsLoading(false);
+    }
     };
     
     const openDeleteAlert = (userId) => {
@@ -108,7 +113,7 @@ export default function UserManagement() {
                                     <TableCell className="text-right">
                                         <Button variant="outline" onClick={() => openDeleteAlert(user.id)} className="mr-2 h-8 w-[15%] border bg-gray-200" style={{ color: "#3758C7" }} >Hapus</Button>
                                         <Button variant="primary" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>
-                                          <Link href="/user-management/update-user">
+                                          <Link href={`/user-management/update-user/${user.id}`}>
                                                 Edit
                                           </Link>
                                         </Button>
@@ -133,7 +138,21 @@ export default function UserManagement() {
                                               <hr className="w-full" />
                                             <AlertDialogFooter className="w-full">
                                               <AlertDialogCancel onClick={() => setIsDeleteAlertOpen(false)} className="font-semibold">Kembali</AlertDialogCancel>
-                                              <AlertDialogAction onClick={handleDelete} className="bg-red-600 text-white">Hapus</AlertDialogAction>
+                                              <AlertDialogAction 
+                                                onClick={handleDelete} 
+                                                className="bg-red-600 text-white"
+                                              >
+                                                  {isLoading ? (
+                                                            <Hearts
+                                                            height="20"
+                                                            width="20"
+                                                            color="#ffffff"
+                                                            ariaLabel="loading"
+                                                            />
+                                                        ) : (
+                                                            "Hapus"
+                                                        )}
+                                              </AlertDialogAction>
                                             </AlertDialogFooter>
                                           </AlertDialogContent>
                                         </AlertDialog>

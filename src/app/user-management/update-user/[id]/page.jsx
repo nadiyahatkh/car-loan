@@ -5,16 +5,14 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { createUsers } from "@/app/apiService";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormMessage } from "@/components/ui/form";
+import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
-import { Hearts } from "react-loader-spinner";
+import { fetchUsersDetail, updateUsers } from "@/app/apiService";
+import { Form, FormField, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from "zod";
+import { useEffect, useState } from "react";
 
 const FormSchema = z.object({
     FirstName: z.string().min(1, { message: "FirstName is required." }),
@@ -25,45 +23,70 @@ const FormSchema = z.object({
     path: z.any().optional(),
 });
 
-export default function AddUser() {
+export default function UpdateUser (){
+    const { id } = useParams()
     const { data: session } = useSession();
     const token = session?.user?.token;
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState("");
-    const router = useRouter()
-    const [openSuccess, setOpenSuccess] = useState(false);
-    const [openError, setOpenError] = useState(false);
-    const [errorMessages, setErrorMessages] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [profileImage, setProfileImage] = useState();
+
+    const form = useForm({
+        resolver: zodResolver(FormSchema),
+    });
 
     const onSubmit = async (data) => {
-        setIsLoading(true)
+        setIsLoading(true);
         try {
-          const result = await createUsers({ data, token, file: selectedFile });
-          setOpenSuccess(true);
+            // Buat salinan data dan hapus password/password_confirmation jika tidak diisi
+            const filteredData = { ...data };
+    
+            if (!data.password) {
+                delete filteredData.password;
+            }
+    
+            if (!data.password_confirmation) {
+                delete filteredData.password_confirmation;
+            }
+    
+            filteredData.foto = data.foto ? data.foto[0] : null;
+
+            console.log('Filtered Data:', filteredData);
+    
+            const result = await updateUsers({ data: filteredData, token });
+            setOpenSuccess(true);
         } catch (error) {
             const message = JSON.parse(error.message);
-            setErrorMessages(Object.values(message.errors).flat());
+            setErrorMessages(Object.values(message.error).flat());
             setOpenError(true);
             console.error('Error updating profile:', error);
         } finally {
             setIsLoading(false);
         }
-      };     
-
-      const form = useForm({
-        resolver: zodResolver(FormSchema),
-    });
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-            const previewUrl = URL.createObjectURL(file);
-            setImagePreviewUrl(previewUrl);
-        }
     };
     
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if(token && id) {
+                const response = await fetchUsersDetail({ token, id });
+                form.setValue('FirstName', response.data.FirstName)
+                form.setValue('LastName', response.data.LastName)
+                form.setValue('email', response.data.email)
+                form.setValue('password', response.data.password)
+                form.setValue('password_confirmation', response.data.password_confirmation)
+                setProfileImage(response.data.path);
+            }
+        };
+        fetchData()
+      }, [token, id])
+
+      const handleProfileImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setProfileImage(URL.createObjectURL(file));
+            form.setValue('path', e.target.files);
+        }
+    };
+
     return (
         <div className="w-full max-w-7xl mx-auto">
             <Breadcrumb>
@@ -77,7 +100,7 @@ export default function AddUser() {
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <div>Add User</div>
+                        <div>Edit User</div>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
@@ -102,11 +125,11 @@ export default function AddUser() {
                                 <Card>
                                     <Form {...form}>
                                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                                            <CardContent className="pe-9 py-2">
+                                            <CardContent className="py-4">
                                                     <div className="mb-4">
                                                         <div className="flex justify-between items-center">
                                                             <div className="w-full mr-2">
-                                                                <Label className="block text-sm mb-2 font-semibold">First Name</Label>
+                                                            <Label className="block text-sm mb-2 font-semibold">First Name</Label>
                                                                 <FormField
                                                                     control={form.control}
                                                                     name="FirstName"
@@ -161,14 +184,13 @@ export default function AddUser() {
                                                     <div className="mb-4">
                                                         <p className="font-bold text-sm mb-2">Photo</p>
                                                         <div className="flex items-center">
-                                                        <img src={imagePreviewUrl || "/default-profile.png"} name="path" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
+                                                        <img src={profileImage} name="foto" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
                                                             <input
-                                                                name="path"
+                                                                name="foto"
                                                                 type="file"
                                                                 accept="image/*"
                                                                 style={{ display: 'none' }}
                                                                 id="fileInput"
-                                                                onChange={handleFileChange}
                                                             />
                                                                 <button type="button" onClick={() => document.getElementById('fileInput').click()} className="px-4 py-2 font-semibold shadow-sm border rounded-md">Change</button>
                                                         </div>
@@ -211,89 +233,10 @@ export default function AddUser() {
                                             </CardContent>
                                                 <hr className="mb-4" />
                                                 <CardFooter className="flex justify-end">
-                                                    <Button type="button" onClick={() => router.push('/user-management')} variant="outline" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                    <Button 
-                                                        type="submit" 
-                                                        variant="primary" 
-                                                        className="text-white h-8 w-[15%]" 
-                                                        style={{ background: "#4F46E5" }}
-                                                    >
-                                                        {isLoading ? (
-                                                            <Hearts
-                                                            height="20"
-                                                            width="20"
-                                                            color="#ffffff"
-                                                            ariaLabel="loading"
-                                                            />
-                                                        ) : (
-                                                            "Simpan"
-                                                        )}
-                                                    </Button>
+                                                    <Button variant="outline" type="button" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
+                                                    <Button variant="primary" type="submit" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Simpan</Button>
                                                 </CardFooter>
-
-                                                {/* Success Dialog */}
-                                                <AlertDialog open={openSuccess} onOpenChange={setOpenSuccess}>
-                                                    <AlertDialogContent className="flex flex-col items-center justify-center text-center">
-                                                        <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#DCFCE7" }}>
-                                                            <svg
-                                                                className="w-6 h-6 text-green-600"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M5 13l4 4L19 7"
-                                                                ></path>
-                                                            </svg>
-                                                        </div>
-                                                        <AlertDialogTitle className="">Yeay! Sukses</AlertDialogTitle>
-                                                        <AlertDialogDescription className="">Anda telah berhasil menambahkan user baru.</AlertDialogDescription>
-                                                        <AlertDialogAction
-                                                            onClick={() => router.push('/user-management')}
-                                                            style={{ background: "#4F46E5" }}
-                                                            className="w-full"
-                                                        >
-                                                            Kembali
-                                                        </AlertDialogAction>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-
-                                                {/* Error Dialog */}
-                                                <AlertDialog open={openError} onOpenChange={setOpenError}>
-                                                <AlertDialogContent className="flex flex-col items-center justify-center text-center">
-                                                <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#FEE2E2" }}>
-                                                    <svg
-                                                        className="w-6 h-6 text-red-600"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth="2"
-                                                            d="M6 18L18 6M6 6l12 12"
-                                                        ></path>
-                                                    </svg>
-                                                </div>
-                                                <AlertDialogTitle>Yahh! Error</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                    <div className="max-h-32 overflow-y-auto font-semibold">
-                                                        {errorMessages.map((message, index) => (
-                                                        <p key={index} className="text-red-500 italic">{message}</p>
-                                                        ))}
-                                                    </div>
-                                                    </AlertDialogDescription>
-                                                    <AlertDialogAction className="w-full" onClick={() => setOpenError(false)} style={{ background: "#4F46E5" }}>Kembali</AlertDialogAction>
-                                                </AlertDialogContent>
-                                                </AlertDialog>
                                         </form>
-
                                     </Form>
                                 </Card>
                             </div>
@@ -302,5 +245,5 @@ export default function AddUser() {
                 </Card>
             </div>
         </div>
-    );
+    )
 }

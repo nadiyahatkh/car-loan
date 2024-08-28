@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { fetchApplicantUser, fetchCar } from "@/app/apiService";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
 export default function SubmissionUser(){
     const router = useRouter();
@@ -26,6 +27,8 @@ export default function SubmissionUser(){
     const token = session?.user?.token;
     const [data, setData] = useState([])
     const[cars, setCars] = useState([])
+    const [search, setSearch] = useState('')
+    const [pendingSearch, setPendingSearch] = useState('');
 
     const defaultDate = {
         from: new Date(2024, 0, 1),
@@ -53,7 +56,7 @@ export default function SubmissionUser(){
           try {
             const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
             const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-            const applicantData = await fetchApplicantUser({ token, start_date, end_date });
+            const applicantData = await fetchApplicantUser({ token, start_date, end_date, search });
             setData(applicantData.Applicant.data);
             setCars(applicantData.car);
           } catch (error) {
@@ -64,7 +67,7 @@ export default function SubmissionUser(){
           if (token) {
             submissionData();
           }
-        }, [token, date]);
+        }, [token, date, search]);
 
         const handleRowClick = (id) => {
             router.push(`/user/detail-submission/${id}`);
@@ -78,6 +81,19 @@ export default function SubmissionUser(){
           const isDateDefault = () => {
             return date.from.getTime() === defaultDate.from.getTime() && date.to.getTime() === defaultDate.to.getTime();
           };
+
+          const handleSearchKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                setSearch(pendingSearch);
+            }
+        };
+    
+        const handleOnChangeSearch = (e) => {
+            setPendingSearch(e.target.value);
+            if (e.target.value === "") {
+                setSearch(""); // Trigger search reset when input is cleared
+            }
+        };
 
   return(
       <div className="w-full max-w-7xl mx-auto">
@@ -115,6 +131,13 @@ export default function SubmissionUser(){
                               </p>
                           </div>
                           <div className="flex flex-col md:flex-row items-start md:items-center space-y-3 md:space-y-0 md:space-x-4">
+                                <Input
+                                    placeholder='Searching...'
+                                    value={pendingSearch}
+                                    onChange={handleOnChangeSearch}
+                                    onKeyDown={handleSearchKeyDown}
+                                    className='max-w-sm'
+                                />
                               <Popover>
                                   <PopoverTrigger asChild>
                                       <Button

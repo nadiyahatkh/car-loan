@@ -22,10 +22,10 @@ export const fetchCar = async ({ token }) => {
   };
 
 //   API USER
-  export const fetchApplicantUser = async ({token, start_date, end_date}) => {
+  export const fetchApplicantUser = async ({token, start_date, end_date, search}) => {
     try {
     //   const statusParams = status.map(s => `status[]=${s}`).join('&');
-        const response = await fetch(`${BASE_URL}/api/Applicant?start_date=${start_date}&end_date=${end_date}`, {
+        const response = await fetch(`${BASE_URL}/api/Applicant?search=${search}&start_date=${start_date}&end_date=${end_date}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -234,6 +234,67 @@ export const fetchCar = async ({ token }) => {
               return result;
             } catch (error) {
               console.log('Error creating aset:', error);
+              throw error;
+            }
+          };
+
+
+          export const fetchUsersDetail = async ({token, id}) => {
+            try {
+              const response = await fetch(`${BASE_URL}/api/users/detail/${id}`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                }
+              })
+              .then((res) => res.json())
+              .then((data) => {
+               return {
+                data: data,
+                message: "successs"
+               }
+              })
+              return response.data
+            } catch (error) {
+              console.error(error);
+              return "abs"
+            }
+          }
+
+          export const updateUsers = async ({ id, data, token, originalData }) => {
+        
+            try {
+              const formData = new FormData();
+              formData.append('FirstName', data.FirstName);
+              formData.append('LastName', data.LastName);
+              formData.append('email', data.email);
+              if (data.password) {
+                formData.append('password', data.password);
+              }
+              if (data.password_confirmation) {
+                  formData.append('password_confirmation', data.password_confirmation);
+              }
+                if (file) {
+                  formData.append('path', file);
+              }
+    
+          
+              const response = await fetch(`${BASE_URL}/api/employee/update/${id}`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: formData,
+              });
+          
+              if (!response.ok) {
+                const result = await response.text();
+                throw new Error(result);
+              }
+          
+              const result = await response.json();
+              return result;
+            } catch (error) {
+              console.error('Error update employee:', error);
               throw error;
             }
           };

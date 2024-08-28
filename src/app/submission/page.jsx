@@ -45,6 +45,7 @@ export default function SubmissionAdmin() {
         const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
         const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
         const applicantData = await fetchApplicantAdmin({ token, start_date, end_date });
+        console.log('Data loaded:', applicantData); // Debugging
         setData(applicantData.dataApplicant.data);
         setCars(applicantData.car)
       } catch (error) {
@@ -58,44 +59,42 @@ export default function SubmissionAdmin() {
     }, [token, date]);
 
     const handleAccept = async (id) => {
-      setLoadingStatus((prevState) => ({ ...prevState, [id]: true })); // Set loading untuk applicant yang sedang diproses
+      setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));
       try {
         await acceptApplicant({ id, token });
-        
-        // Ambil data terbaru dari API
         const applicantData = await fetchApplicantAdmin({ token });
+        console.log('Data after accepting:', applicantData); // Debugging
         setData(applicantData.dataApplicant.data);
         setCars(applicantData.car);
-  
       } catch (error) {
         console.error('Error accepting applicant:', error);
       } finally {
-        setLoadingStatus((prevState) => ({ ...prevState, [id]: false })); // Set loading ke false setelah proses selesai
+        setLoadingStatus((prevState) => ({ ...prevState, [id]: false }));
       }
-  };
+    };
 
-  const handleDeny = async (event) => {
-    event.preventDefault(); // Prevent default form submission
+    const handleDeny = async (event) => {
+      event.preventDefault();
+      if (!currentApplicantId || !notes) return;
+    
+      setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: true }));
+      try {
+        await denyApplicant({ id: currentApplicantId, token, notes });
+        const applicantData = await fetchApplicantAdmin({ token });
+        console.log('Data after denying:', applicantData); // Debugging
+        setData(applicantData.dataApplicant.data);
+        setCars(applicantData.car);
+        setNotes('');
+        setCurrentApplicantId(null);
+        setIsDialogOpen(false);
+      } catch (error) {
+        console.error('Error denying applicant:', error);
+      } finally {
+        setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: false }));
+      }
+    };
+    
 
-    if (!currentApplicantId || !notes) return; // Ensure we have an ID and notes
-
-    setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: true }));
-    try {
-      await denyApplicant({ id: currentApplicantId, token, notes });
-
-      const applicantData = await fetchApplicantAdmin({ token });
-      setData(applicantData.dataApplicant.data);
-      setCars(applicantData.car);
-
-      setNotes(''); // Clear notes after submission
-      setCurrentApplicantId(null); // Reset current applicant ID
-      setIsDialogOpen(false); 
-    } catch (error) {
-      console.error('Error denying applicant:', error);
-    } finally {
-      setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: false }));
-    }
-  };
       const handleRowClick = (id) => {
         router.push(`/submission/detail-submission/${id}`);
       };
@@ -322,7 +321,7 @@ export default function SubmissionAdmin() {
                                     <CheckCheck className="w-4 h-4 text-green-500" />
                                     <p className="text-sm font-semibold text-green-500">Disetujui</p>
                                   </div>
-                                ) : applicant.status === 'Ditolak' ? (
+                                ) : applicant.status === 'DiTolak' ? (
                                   <div className="flex items-center space-x-2">
                                     <XCircleIcon className="w-4 h-4 text-red-500" />
                                     <p className="text-sm font-semibold text-red-500">Ditolak</p>
