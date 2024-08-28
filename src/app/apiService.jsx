@@ -260,7 +260,7 @@ export const fetchCar = async ({ token }) => {
             }
           }
 
-          export const updateUsers = async ({ id, data, token, originalData }) => {
+          export const updateUsers = async ({ id, data, token }) => {
         
             try {
               const formData = new FormData();
@@ -273,9 +273,9 @@ export const fetchCar = async ({ token }) => {
               if (data.password_confirmation) {
                   formData.append('password_confirmation', data.password_confirmation);
               }
-                if (file) {
-                  formData.append('path', file);
-              }
+              if (data.path && data.path.length > 0) {
+                formData.append('profileImage', data.path[0]);  // Assuming path is an array of files
+            }
     
           
               const response = await fetch(`${BASE_URL}/api/employee/update/${id}`, {
@@ -288,13 +288,14 @@ export const fetchCar = async ({ token }) => {
           
               if (!response.ok) {
                 const result = await response.text();
+                console.log(result)
                 throw new Error(result);
               }
           
               const result = await response.json();
               return result;
             } catch (error) {
-              console.error('Error update employee:', error);
+              console.error('Error update users:', error);
               throw error;
             }
           };

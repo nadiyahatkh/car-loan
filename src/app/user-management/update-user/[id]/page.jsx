@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { fetchUsersDetail, updateUsers } from "@/app/apiService";
 import { Form, FormField, FormMessage } from "@/components/ui/form";
@@ -13,13 +13,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod";
 import { useEffect, useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Hearts } from "react-loader-spinner";
 
 const FormSchema = z.object({
     FirstName: z.string().min(1, { message: "FirstName is required." }),
     LastName: z.string().min(1, { message: "LastName is required." }),
     email: z.string().email({ message: "Invalid email address." }).min(1, { message: "Email is required." }),
-    password: z.string().min(1, { message: "Password wajib diisi." }),
-    password_confirmation: z.string().min(1, { message: "Password wajib diisi." }),
+    password: z.string().optional(),
+    password_confirmation: z.string().optional(),
     path: z.any().optional(),
 });
 
@@ -28,6 +30,11 @@ export default function UpdateUser (){
     const { data: session } = useSession();
     const token = session?.user?.token;
     const [profileImage, setProfileImage] = useState();
+    const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [errorMessages, setErrorMessages] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter()
 
     const form = useForm({
         resolver: zodResolver(FormSchema),
@@ -47,7 +54,7 @@ export default function UpdateUser (){
                 delete filteredData.password_confirmation;
             }
     
-            filteredData.foto = data.foto ? data.foto[0] : null;
+            
 
             console.log('Filtered Data:', filteredData);
     
@@ -55,7 +62,7 @@ export default function UpdateUser (){
             setOpenSuccess(true);
         } catch (error) {
             const message = JSON.parse(error.message);
-            setErrorMessages(Object.values(message.error).flat());
+            setErrorMessages(Object.values(message.errors).flat());
             setOpenError(true);
             console.error('Error updating profile:', error);
         } finally {
@@ -184,13 +191,14 @@ export default function UpdateUser (){
                                                     <div className="mb-4">
                                                         <p className="font-bold text-sm mb-2">Photo</p>
                                                         <div className="flex items-center">
-                                                        <img src={profileImage} name="foto" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
+                                                        <img src={profileImage} name="path" alt="Profile Image" className="w-12 h-12 rounded-full mr-4" />
                                                             <input
-                                                                name="foto"
+                                                                name="path"
                                                                 type="file"
                                                                 accept="image/*"
                                                                 style={{ display: 'none' }}
                                                                 id="fileInput"
+                                                                onChange={handleProfileImageChange}
                                                             />
                                                                 <button type="button" onClick={() => document.getElementById('fileInput').click()} className="px-4 py-2 font-semibold shadow-sm border rounded-md">Change</button>
                                                         </div>
@@ -234,8 +242,86 @@ export default function UpdateUser (){
                                                 <hr className="mb-4" />
                                                 <CardFooter className="flex justify-end">
                                                     <Button variant="outline" type="button" className="mr-2 shadow-md h-8 w-[15%]" style={{ background: "#D1D5DB", color: "#3758C7" }}>Kembali</Button>
-                                                    <Button variant="primary" type="submit" className="text-white h-8 w-[15%]" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                    <Button 
+                                                        variant="primary" 
+                                                        type="submit" 
+                                                        className="text-white h-8 w-[15%]" 
+                                                        style={{ background: "#4F46E5" }}
+                                                    >
+                                                        {isLoading ? (
+                                                            <Hearts
+                                                            height="20"
+                                                            width="20"
+                                                            color="#ffffff"
+                                                            ariaLabel="loading"
+                                                            />
+                                                        ) : (
+                                                            "Simpan"
+                                                        )}
+                                                    </Button>
                                                 </CardFooter>
+
+                                                {/* Success Dialog */}
+                                                <AlertDialog open={openSuccess} onOpenChange={setOpenSuccess}>
+                                                    <AlertDialogContent className="flex flex-col items-center justify-center text-center">
+                                                        <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#DCFCE7" }}>
+                                                            <svg
+                                                                className="w-6 h-6 text-green-600"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M5 13l4 4L19 7"
+                                                                ></path>
+                                                            </svg>
+                                                        </div>
+                                                        <AlertDialogTitle className="">Yeay! Sukses</AlertDialogTitle>
+                                                        <AlertDialogDescription className="">Anda telah berhasil menambahkan user baru.</AlertDialogDescription>
+                                                        <AlertDialogAction
+                                                            onClick={() => router.push('/user-management')}
+                                                            style={{ background: "#4F46E5" }}
+                                                            className="w-full"
+                                                        >
+                                                            Kembali
+                                                        </AlertDialogAction>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+
+                                                {/* Error Dialog */}
+                                                <AlertDialog open={openError} onOpenChange={setOpenError}>
+                                                <AlertDialogContent className="flex flex-col items-center justify-center text-center">
+                                                <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#FEE2E2" }}>
+                                                    <svg
+                                                        className="w-6 h-6 text-red-600"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M6 18L18 6M6 6l12 12"
+                                                        ></path>
+                                                    </svg>
+                                                </div>
+                                                <AlertDialogTitle>Yahh! Error</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                    <div className="max-h-32 overflow-y-auto font-semibold">
+                                                        {errorMessages.map((message, index) => (
+                                                        <p key={index} className="text-red-500 italic">{message}</p>
+                                                        ))}
+                                                    </div>
+                                                    </AlertDialogDescription>
+                                                    <AlertDialogAction className="w-full" onClick={() => setOpenError(false)} style={{ background: "#4F46E5" }}>Kembali</AlertDialogAction>
+                                                </AlertDialogContent>
+                                                </AlertDialog>
                                         </form>
                                     </Form>
                                 </Card>
