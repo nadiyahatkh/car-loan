@@ -22,10 +22,10 @@ export const fetchCar = async ({ token }) => {
   };
 
 //   API USER
-  export const fetchApplicantUser = async ({token, start_date, end_date, search}) => {
+  export const fetchApplicantUser = async ({token, start_date, end_date, search, status}) => {
     try {
-    //   const statusParams = status.map(s => `status[]=${s}`).join('&');
-        const response = await fetch(`${BASE_URL}/api/Applicant?search=${search}&start_date=${start_date}&end_date=${end_date}`, {
+      const statusParams = status.map(s => `status[]=${s}`).join('&');
+        const response = await fetch(`${BASE_URL}/api/Applicant?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

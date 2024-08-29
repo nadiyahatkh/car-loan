@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "@radix-ui/react-icons";
+import { CalendarIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { id } from "date-fns/locale";
 import { CheckCheckIcon, FolderXIcon, RefreshCcwIcon, XCircle } from "lucide-react";
@@ -20,6 +20,8 @@ import { fetchApplicantUser, fetchCar } from "@/app/apiService";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { DataTableFacetedFilter } from "@/components/submission-user/status-filter";
+import { statuses } from "@/components/submission-user/constants";
 
 export default function SubmissionUser(){
     const router = useRouter();
@@ -29,6 +31,7 @@ export default function SubmissionUser(){
     const [cars, setCars] = useState([])
     const [search, setSearch] = useState('')
     const [pendingSearch, setPendingSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState([]);
 
     const defaultDate = {
         from: new Date(2024, 0, 1),
@@ -56,7 +59,9 @@ export default function SubmissionUser(){
           try {
             const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
             const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-            const applicantData = await fetchApplicantUser({ token, start_date, end_date, search });
+            console.log("Fetching data with filters:", { token, start_date, end_date, search, statusFilter });
+            const applicantData = await fetchApplicantUser({ token, start_date, end_date, search, status: statusFilter });
+            console.log("Fetched data:", applicantData);
             setData(applicantData.Applicant.data);
             setCars(applicantData.car);
           } catch (error) {
@@ -67,7 +72,7 @@ export default function SubmissionUser(){
           if (token) {
             submissionData();
           }
-        }, [token, date, search]);
+        }, [token, date, search, statusFilter]);
 
         const handleRowClick = (id) => {
             router.push(`/user/detail-submission/${id}`);
@@ -94,6 +99,11 @@ export default function SubmissionUser(){
                 setSearch(""); // Trigger search reset when input is cleared
             }
         };
+
+        const filteredData = data.filter((applicant) => {
+            console.log("Filtering data with statusFilter:", statusFilter);
+            return statusFilter.length === 0 || statusFilter.includes(applicant.status);
+        });
 
   return(
       <div className="w-full max-w-7xl mx-auto">
@@ -131,6 +141,24 @@ export default function SubmissionUser(){
                               </p>
                           </div>
                           <div className="flex flex-col md:flex-row items-start md:items-center space-y-3 md:space-y-0 md:space-x-4">
+
+                                <DataTableFacetedFilter
+                                    
+                                    title="Status"
+                                    options={statuses}
+                                    statusFilter={statusFilter}
+                                    setStatusFilter={setStatusFilter}
+                                />
+                                {statusFilter.length > 0 && (
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => setStatusFilter([])}
+                                        className="h-8 px-2 lg:px-3"
+                                    >
+                                        Reset
+                                        <Cross2Icon className="ml-2 h-4 w-4" />
+                                    </Button>
+                                )}
                                 <Input
                                     placeholder='Searching...'
                                     value={pendingSearch}
@@ -199,8 +227,8 @@ export default function SubmissionUser(){
                               </TableRow>
                           </TableHeader>
                           <TableBody>
-                          {Array.isArray(data) && data.length > 0 ? (
-                                data.map((applicant) => {
+                          {filteredData.length > 0 ? (
+                                filteredData.map((applicant) => {
                                     let statusIcon;
                                     let statusTextClass;
 
