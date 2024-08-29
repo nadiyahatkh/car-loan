@@ -274,11 +274,11 @@ export const fetchCar = async ({ token }) => {
                   formData.append('password_confirmation', data.password_confirmation);
               }
               if (data.path && data.path.length > 0) {
-                formData.append('profileImage', data.path[0]);  // Assuming path is an array of files
+                formData.append('path', data.path[0]);  // Assuming path is an array of files
             }
     
           
-              const response = await fetch(`${BASE_URL}/api/employee/update/${id}`, {
+              const response = await fetch(`${BASE_URL}/api/users/update/${id}`, {
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${token}`,

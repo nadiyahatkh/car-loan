@@ -44,7 +44,7 @@ export default function SubmissionAdmin() {
       try {
         const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
         const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date });
+        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search });
         console.log('Data loaded:', applicantData); // Debugging
         setData(applicantData.dataApplicant.data);
         setCars(applicantData.car)
@@ -56,7 +56,7 @@ export default function SubmissionAdmin() {
       if (token) {
         submissionData();
       }
-    }, [token, date]);
+    }, [token, date, search]);
 
     const handleAccept = async (id) => {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));
