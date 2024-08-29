@@ -20,6 +20,7 @@ import { useSession } from "next-auth/react";
 import { Hearts, TailSpin } from "react-loader-spinner";
 import { useRouter } from "next/navigation";
 import { id } from "date-fns/locale";
+import { Input } from "@/components/ui/input";
 
 
 export default function SubmissionAdmin() {
@@ -30,6 +31,8 @@ export default function SubmissionAdmin() {
   const [cars, setCars] = useState([])
   const [data, setData] = useState([])
   const [notes, setNotes] = useState('');
+  const [search, setSearch] = useState('')
+  const [pendingSearch, setPendingSearch] = useState('');
   const [currentApplicantId, setCurrentApplicantId] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false); 
   const defaultDate = {
@@ -107,6 +110,19 @@ export default function SubmissionAdmin() {
         return date.from.getTime() === defaultDate.from.getTime() && date.to.getTime() === defaultDate.to.getTime();
       };
 
+      const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            setSearch(pendingSearch);
+        }
+      };
+
+      const handleOnChangeSearch = (e) => {
+          setPendingSearch(e.target.value);
+          if (e.target.value === "") {
+              setSearch(""); // Trigger search reset when input is cleared
+          }
+      };
+
     return (
         <div className=" w-full max-w-7xl mx-auto">
         <div className="flex items-center space-x-3 mb-5">
@@ -145,6 +161,13 @@ export default function SubmissionAdmin() {
                   </div>
                   {/* Right section */}
                   <div className="flex items-center space-x-4">
+                  <Input
+                        placeholder='Searching...'
+                        value={pendingSearch}
+                        onChange={handleOnChangeSearch}
+                        onKeyDown={handleSearchKeyDown}
+                        className='max-w-sm'
+                    />
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button

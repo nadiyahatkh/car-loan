@@ -94,9 +94,9 @@ export const fetchCar = async ({ token }) => {
     };
 
     // API ADMIN
-    export const fetchApplicantAdmin = async ({token, start_date, end_date}) => {
+    export const fetchApplicantAdmin = async ({token, start_date, end_date, search}) => {
         try {
-            const response = await fetch(`${BASE_URL}/api/data/applicants?start_date=${start_date}&end_date=${end_date}`, {
+            const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`,
