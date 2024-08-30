@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { id } from "date-fns/locale";
-import { CheckCheckIcon, FolderXIcon, RefreshCcwIcon, XCircle } from "lucide-react";
+import { CheckCheck, CheckCheckIcon, FolderXIcon, RefreshCcwIcon, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -222,34 +222,12 @@ export default function SubmissionUser(){
                                   <TableHead className="text-sm font-semibold text-black">Waktu Pengembalian</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Status</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Catatan</TableHead>
+                                  <TableHead className="text-sm font-semibold text-black">Aksi</TableHead>
                               </TableRow>
                           </TableHeader>
                           <TableBody>
                           {filteredData.length > 0 ? (
-                                filteredData.map((applicant) => {
-                                    let statusIcon;
-                                    let statusTextClass;
-
-                                    switch (applicant.status) {
-                                        case "Disetujui":
-                                            statusIcon = <CheckCheckIcon className="h-4 w-4 text-green-500" />;
-                                            statusTextClass = "text-green-500";
-                                            break;
-                                        case "Ditolak":
-                                            statusIcon = <XCircle className="h-4 w-4 text-red-500" />;
-                                            statusTextClass = "text-red-500";
-                                            break;
-                                        case "Belum Disetujui":
-                                            statusIcon = <RefreshCcwIcon className="h-4 w-4 font-semibold text-black" />;
-                                            statusTextClass = "font-semibold text-black";
-                                            break;
-                                        default:
-                                            statusIcon = null;
-                                            statusTextClass = "";
-                                            break;
-                                    }
-
-                                    return (
+                                filteredData.map((applicant) => (
                                         <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                                             <TableCell className="text-sm">{applicant.purpose}</TableCell>
                                             <TableCell className="text-sm">
@@ -258,13 +236,37 @@ export default function SubmissionUser(){
                                             <TableCell className="text-sm">
                                                 {applicant.expiry_date ? format(new Date(applicant.expiry_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: id }) : '-'}
                                             </TableCell>
-                                            <TableCell className={`text-sm flex items-center font-semibold ${statusTextClass}`}>
-                                                {statusIcon}{applicant.status}
+                                            <TableCell >
+                                                {applicant.status === 'Disetujui' ? (
+                                                        <div className="flex items-center space-x-2">
+                                                            <CheckCheck className="w-4 h-4 text-green-500" />
+                                                            <p className="text-sm font-semibold text-green-500">Disetujui</p>
+                                                        </div>
+                                                        ) : applicant.status === 'DiTolak' ? (
+                                                        <div className="flex items-center space-x-2">
+                                                            <XCircle className="w-4 h-4 text-red-500" />
+                                                            <p className="text-sm font-semibold text-red-500">Ditolak</p>
+                                                        </div>
+                                                        ) : applicant.status === 'Belum DiSetujui' ? (
+                                                            <div className="flex items-center space-x-2">
+                                                                <RefreshCcwIcon className="w-4 h-4 text-red-500" />
+                                                                <p className="text-sm font-semibold text-red-500">Belum Disetujui</p>
+                                                            </div>
+                                                            ) : (
+                                                                <p className="text-sm font-semibold">{applicant.status}</p>
+                                                                )}
                                             </TableCell>
                                             <TableCell className="text-sm">{applicant.notes || '-'}</TableCell>
+                                            <TableCell className="text-sm">
+                                            <Button variant="primary" onClick={(e) => {e.stopPropagation()}} className="text-white h-8 w-20" style={{ background: "#4F46E5" }}>
+                                                <Link href={`/user/submission-user/update-submission/${applicant.id}`}>
+                                                        Edit
+                                                </Link>
+                                            </Button>
+                                            </TableCell>
                                         </TableRow>
-                                    );
-                                })
+                                ))
+                                
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center text-sm">

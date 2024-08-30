@@ -79,6 +79,37 @@ export const fetchCar = async ({ token }) => {
       }
     };
 
+    export const updateApplicantUser = async ({ id, data, token, path }) => {
+      try {
+        const formData = new FormData();
+        formData.append('purpose', data.purpose);
+        formData.append('car_id', data.car_id);
+        if (data.submission_date) {
+          formData.append('submission_date', format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss"));
+        }
+        
+        if (data.expiry_date) {
+          formData.append('expiry_date', format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss"));
+        }
+
+        const response = await fetch(`${BASE_URL}/api/Applicant/update/${id}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        });
+        if (!response.ok) {
+          const result = await response.text();
+          throw new Error(result);
+        }
+        return await response.json();
+      } catch (error) {
+        console.log('Error creating applicant:', error);
+        throw error;
+      }
+    };
+
     export const fetchApplicantUserDetail = async ({ token, id }) => {
       try {
         const response = await fetch(`${BASE_URL}/api/Applicant/detail/${id}`, {
