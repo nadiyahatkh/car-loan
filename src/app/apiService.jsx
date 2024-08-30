@@ -50,8 +50,13 @@ export const fetchCar = async ({ token }) => {
         const formData = new FormData();
         formData.append('purpose', data.purpose);
         formData.append('car_id', data.asset_id);
-        formData.append('submission_date', format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss"));
-        formData.append('expiry_date', format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss"));
+        if (data.submission_date) {
+          formData.append('submission_date', format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss"));
+        }
+        
+        if (data.expiry_date) {
+          formData.append('expiry_date', format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss"));
+        }
     
         const response = await fetch(`${BASE_URL}/api/Applicant/create`, {
           method: 'POST',
@@ -94,8 +99,9 @@ export const fetchCar = async ({ token }) => {
     };
 
     // API ADMIN
-    export const fetchApplicantAdmin = async ({token, start_date, end_date, search}) => {
+    export const fetchApplicantAdmin = async ({token, start_date, end_date, search, status}) => {
         try {
+          const statusParams = status.map(s => `status[]=${s}`).join('&');
             const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}`, {
               method: 'GET',
               headers: {
@@ -181,9 +187,9 @@ export const fetchCar = async ({ token }) => {
           
           
 
-        export const fetchUsers = async ({token}) => {
+        export const fetchUsers = async ({token, page}) => {
             try {
-              const response = await fetch(`${BASE_URL}/api/users`, {
+              const response = await fetch(`${BASE_URL}/api/users?page=${page}`, {
                 headers: {
                   'Authorization': `Bearer ${token}`,
                 }

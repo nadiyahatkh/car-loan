@@ -163,43 +163,49 @@ export default function UserManagement() {
                             </Table>
                     </CardContent>
                       <hr className="mb-4" />
-                    <CardFooter className="flex w-full">
-                      <Pagination>
-                        <PaginationContent>
-                          <PaginationItem className="">
+                      <CardFooter className="flex w-full">
+                        <Pagination className="flex w-full justify-between">
+                          {/* Previous Button aligned to the far left */}
+                          <PaginationItem className="flex-shrink-0">
                             <PaginationPrevious href="#" />
                           </PaginationItem>
-                          <PaginationItem>
-                            <PaginationLink href="#">1</PaginationLink>
-                          </PaginationItem>
-                          <PaginationItem>
-                            <PaginationLink href="#" isActive>
-                              2
-                            </PaginationLink>
-                          </PaginationItem>
-                          <PaginationItem>
-                            <PaginationLink href="#">3</PaginationLink>
-                          </PaginationItem>
-                          <PaginationItem>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                          <PaginationItem>
-                            <PaginationLink href="#">8</PaginationLink>
-                          </PaginationItem>
-                          <PaginationItem>
-                            <PaginationLink href="#" isActive>
-                              9
-                            </PaginationLink>
-                          </PaginationItem>
-                          <PaginationItem>
-                            <PaginationLink href="#">10</PaginationLink>
-                          </PaginationItem>
-                          <PaginationItem className="flex justify-end">
+
+                          {/* Page Numbers aligned in the center */}
+                          <PaginationContent className="flex items-center space-x-2">
+                            <PaginationItem>
+                              <PaginationLink href="#">1</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationLink href="#" isActive>
+                                2
+                              </PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationLink href="#">3</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationLink href="#">8</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationLink href="#" isActive>
+                                9
+                              </PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationLink href="#">10</PaginationLink>
+                            </PaginationItem>
+                          </PaginationContent>
+
+                          {/* Next Button aligned to the far right */}
+                          <PaginationItem className="flex-shrink-0">
                             <PaginationNext href="#" />
                           </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>
-                    </CardFooter>
+                        </Pagination>
+                      </CardFooter>
+
                 </Card>
             </div>
         </div>

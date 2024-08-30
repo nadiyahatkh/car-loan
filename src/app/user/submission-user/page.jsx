@@ -59,9 +59,7 @@ export default function SubmissionUser(){
           try {
             const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
             const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-            console.log("Fetching data with filters:", { token, start_date, end_date, search, statusFilter });
             const applicantData = await fetchApplicantUser({ token, start_date, end_date, search, status: statusFilter });
-            console.log("Fetched data:", applicantData);
             setData(applicantData.Applicant.data);
             setCars(applicantData.car);
           } catch (error) {

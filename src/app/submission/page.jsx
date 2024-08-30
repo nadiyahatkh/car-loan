@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "@radix-ui/react-icons";
+import { CalendarIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { CheckCheck, FolderXIcon, XCircleIcon } from "lucide-react";
 import Link from "next/link";
@@ -21,6 +21,8 @@ import { Hearts, TailSpin } from "react-loader-spinner";
 import { useRouter } from "next/navigation";
 import { id } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
+import { DataTableFacetedFilter } from "@/components/submission-admin/status-filter";
+import { statuses } from "@/components/submission-admin/constans";
 
 
 export default function SubmissionAdmin() {
@@ -35,6 +37,7 @@ export default function SubmissionAdmin() {
   const [pendingSearch, setPendingSearch] = useState('');
   const [currentApplicantId, setCurrentApplicantId] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false); 
+  const [statusFilter, setStatusFilter] = useState([]);
   const defaultDate = {
     from: new Date(2024, 0, 1),
     to: new Date(2024, 11, 31)
@@ -47,7 +50,7 @@ export default function SubmissionAdmin() {
       try {
         const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
         const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search });
+        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter });
         console.log('Data loaded:', applicantData); // Debugging
         setData(applicantData.dataApplicant.data);
         setCars(applicantData.car)
@@ -59,7 +62,7 @@ export default function SubmissionAdmin() {
       if (token) {
         submissionData();
       }
-    }, [token, date, search]);
+    }, [token, date, search, statusFilter]);
 
     const handleAccept = async (id) => {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));
@@ -123,6 +126,11 @@ export default function SubmissionAdmin() {
           }
       };
 
+      const filteredData = data.filter((applicant) => {
+        console.log("Filtering data with statusFilter:", statusFilter);
+        return statusFilter.length === 0 || statusFilter.includes(applicant.status);
+    });
+
     return (
         <div className=" w-full max-w-7xl mx-auto">
         <div className="flex items-center space-x-3 mb-5">
@@ -161,6 +169,23 @@ export default function SubmissionAdmin() {
                   </div>
                   {/* Right section */}
                   <div className="flex items-center space-x-4">
+                        <DataTableFacetedFilter
+                                    
+                            title="Status"
+                            options={statuses}
+                            statusFilter={statusFilter}
+                            setStatusFilter={setStatusFilter}
+                        />
+                        {statusFilter.length > 0 && (
+                            <Button
+                                variant="ghost"
+                                onClick={() => setStatusFilter([])}
+                                className="h-8 px-2 lg:px-3"
+                            >
+                                Reset
+                                <Cross2Icon className="ml-2 h-4 w-4" />
+                            </Button>
+                        )}
                   <Input
                         placeholder='Searching...'
                         value={pendingSearch}
@@ -231,8 +256,8 @@ export default function SubmissionAdmin() {
                           </TableRow>
                       </TableHeader>
                       <TableBody>
-                          {Array.isArray(data) && data.length > 0 ? (
-                            data.map((applicant) => (
+                          {filteredData.length > 0 ? (
+                            filteredData.map((applicant) => (
                           <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                               <TableCell className="text-sm">{applicant.purpose}</TableCell>
                               <TableCell className="text-sm">

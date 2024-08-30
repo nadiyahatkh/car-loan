@@ -35,7 +35,7 @@ const FormSchema = z.object({
 export default function Pengajuan() {
     const { data: session } = useSession();
     const token = session?.user?.token;
-    const router = useRouter
+    const router = useRouter()
     const [errorMessages, setErrorMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [cars, setCars] = useState([])
@@ -61,6 +61,9 @@ export default function Pengajuan() {
     const onSubmit= async (data) => {
         const submissionDate = data.submission_date ? format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
         const expiryDate = data.expiry_date ? format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
+
+        console.log('Submission Date:', submissionDate);
+        console.log('Expiry Date:', expiryDate);
 
         const payload = {
             ...data,
