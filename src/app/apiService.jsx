@@ -49,7 +49,7 @@ export const fetchCar = async ({ token }) => {
       try {
         const formData = new FormData();
         formData.append('purpose', data.purpose);
-        formData.append('car_id', data.asset_id);
+        formData.append('car_id', data.car_id);
         if (data.submission_date) {
           formData.append('submission_date', format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss"));
         }
@@ -102,7 +102,7 @@ export const fetchCar = async ({ token }) => {
     export const fetchApplicantAdmin = async ({token, start_date, end_date, search, status}) => {
         try {
           const statusParams = status.map(s => `status[]=${s}`).join('&');
-            const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}`, {
+            const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`,

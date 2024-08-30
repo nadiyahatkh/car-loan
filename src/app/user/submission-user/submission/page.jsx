@@ -21,13 +21,16 @@ import { format } from "date-fns";
 import Link from "next/link";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { id } from 'date-fns/locale';
 
 import { TimePicker } from "@/components/time-picker/time-picker";
 import { useRouter } from "next/navigation";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Hearts } from "react-loader-spinner";
 
 const FormSchema = z.object({
     purpose: z.string().min(1, { message: "purpose is required." }),
-    car_id: z.string().min(1, { message: "car wajib diisi." }),
+    car_id: z.preprocess((val) => Number(val), z.number().min(1, { message: "Car wajib diisi." })),
     submission_date: z.date().optional(),
     expiry_date: z.date().optional(),
 })
@@ -36,9 +39,12 @@ export default function Pengajuan() {
     const { data: session } = useSession();
     const token = session?.user?.token;
     const router = useRouter()
+    const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
     const [errorMessages, setErrorMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [cars, setCars] = useState([])
+    const [carId, setCarId] = useState()
     const form = useForm({
         resolver: zodResolver(FormSchema),
     });
@@ -48,6 +54,7 @@ export default function Pengajuan() {
         const loadData = async () => {
           try {
             const response = await fetchCar({ token });
+            console.log(response)
             setCars(response.data.data);
           } catch (error) {
             console.error('Failed to fetch data:', error);
@@ -59,6 +66,7 @@ export default function Pengajuan() {
     }, [token]);
 
     const onSubmit= async (data) => {
+        console.log('Form submitted with data:', data); // Add this line
         const submissionDate = data.submission_date ? format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
         const expiryDate = data.expiry_date ? format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
 
@@ -69,24 +77,21 @@ export default function Pengajuan() {
             ...data,
             submission_date: submissionDate,
             expiry_date: expiryDate,
+            car_id: Number(data.car_id) || Number(carId),
         };
+        console.log('Payload:', payload);
         setIsLoading(true)
         try{
+            console.log('Form data before submission:', data);
             const result = await createApplicantUser({data: payload, token });
-            router.push("/submission")
             setOpenSuccess(true)
         } catch (error) {
-            console.error('Error creating asset:', error);
-            if (error.response) {
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-                console.error('Response headers:', error.response.headers);
-            } else if (error.request) {
-                console.error('Request data:', error.request);
-            } else {
-                console.error('Error message:', error.message);
-            }
-            setErrorMessages(['Error creating asset.']);
+            const message = JSON.parse(error.message);
+            setErrorMessages(Object.values(message.errors).flat());
+            setOpenError(true);
+            console.error('Error updating profile:', error);
+        } finally {
+            setIsLoading(false);
         }
     }
     return (
@@ -147,10 +152,17 @@ export default function Pengajuan() {
                                                         control={form.control}
                                                         name="car_id"
                                                         render={({field}) => (
-                                                            <RadioGroup {...field} onValueChange={field.onChange} className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
+                                                            <RadioGroup 
+                                                                value={field.value ? field.value.toString() : ""}
+                                                                onValueChange={(value) => {
+                                                                field.onChange(value); // Update react-hook-form state
+                                                                setCarId(value); // Update component state
+                                                                }}
+                                                                {...field}
+                                                                className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
                                                             {cars?.map(car => (
                                                                 <div key={car.id} className="space-x-2">
-                                                                    <RadioGroupItem value={car.id} id={`car-${car.id}`} />
+                                                                    <RadioGroupItem value={car.id.toString()} id={`car-${car.id}`} />
                                                                     <Label htmlFor={`car-${car.id}`}>{car.name}</Label>
                                                                 </div>
                                                             ))}
@@ -166,30 +178,37 @@ export default function Pengajuan() {
                                                         control={form.control}
                                                         name="submission_date"
                                                         render={({ field }) => (
-                                                        <Popover>
+                                                            <Popover>
                                                             <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih Waktu Peminjaman</span>}
-                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                <FormControl>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className={cn(
+                                                                    'w-full pl-3 text-left font-normal',
+                                                                    !field.value && 'text-muted-foreground'
+                                                                    )}
+                                                                >
+                                                                    {field.value
+                                                                    ? format(field.value, "d MMMM yyyy, HH:mm 'WIB'", { locale: id }) // Format tanggal dan waktu sesuai dengan format yang diinginkan
+                                                                    : <span>Pilih Waktu Peminjaman</span>}
+                                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                                 </Button>
-                                                            </FormControl>
+                                                                </FormControl>
                                                             </PopoverTrigger>
                                                             <PopoverContent className="w-auto p-0" align="start">
-                                                            {/* <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date < new Date('1900-01-01') || date > new Date('2100-12-31')} initialFocus /> */}
-                                                            <DatePicker
+                                                                <DatePicker
                                                                 selected={field.value}
-                                                                onChange={(date) => field.onChange(date)} // Update value on change
+                                                                onChange={(date) => field.onChange(date)}
                                                                 showTimeSelect
                                                                 dateFormat="Pp"
                                                                 timeFormat="HH:mm"
                                                                 timeIntervals={15}
                                                                 inline
-                                                            />
+                                                                />
                                                             </PopoverContent>
-                                                        </Popover>
+                                                            </Popover>
                                                         )}
-                                                    />
+                                                        />
                                                     </div>
                                                     <div className="w-full lg:w-[48%]">
                                                     <Label className="block text-sm mb-2">Waktu Pengembalian</Label>
@@ -201,7 +220,9 @@ export default function Pengajuan() {
                                                             <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                                {field.value ? format(field.value, 'PPP') : <span>Pilih Waktu Pengembalian</span>}
+                                                                {field.value
+                                                                    ? format(field.value, "d MMMM yyyy, HH:mm 'WIB'", { locale: id }) // Format tanggal dan waktu sesuai dengan format yang diinginkan
+                                                                    : <span>Pilih Waktu Pengembalian</span>}
                                                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                                 </Button>
                                                             </FormControl>
@@ -264,8 +285,86 @@ export default function Pengajuan() {
                                                      Kembali
                                                     </Link>
                                                 </Button>
-                                                <Button type="submit" variant="primary" onClick={() => console.log(form)} className="text-white h-10 w-full sm:w-auto" style={{ background: "#4F46E5" }}>Simpan</Button>
+                                                <Button 
+                                                    type="submit" 
+                                                    variant="primary" 
+                                                    className="text-white h-10 w-full sm:w-auto" 
+                                                    style={{ background: "#4F46E5" }}
+                                                >
+                                                    {isLoading ? (
+                                                            <Hearts
+                                                            height="20"
+                                                            width="20"
+                                                            color="#ffffff"
+                                                            ariaLabel="loading"
+                                                            />
+                                                        ) : (
+                                                            "Simpan"
+                                                        )}
+                                                </Button>
                                             </CardFooter>
+
+                                            {/* Success Dialog */}
+                                                <AlertDialog open={openSuccess} onOpenChange={setOpenSuccess}>
+                                                    <AlertDialogContent className="flex flex-col items-center justify-center text-center">
+                                                        <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#DCFCE7" }}>
+                                                            <svg
+                                                                className="w-6 h-6 text-green-600"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M5 13l4 4L19 7"
+                                                                ></path>
+                                                            </svg>
+                                                        </div>
+                                                        <AlertDialogTitle className="">Yeay! Sukses</AlertDialogTitle>
+                                                        <AlertDialogDescription className="">Anda telah berhasil menambahkan user baru.</AlertDialogDescription>
+                                                        <AlertDialogAction
+                                                            onClick={() => router.push('/user/submission-user')}
+                                                            style={{ background: "#4F46E5" }}
+                                                            className="w-full"
+                                                        >
+                                                            Kembali
+                                                        </AlertDialogAction>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+
+                                                {/* Error Dialog */}
+                                                <AlertDialog open={openError} onOpenChange={setOpenError}>
+                                                <AlertDialogContent className="flex flex-col items-center justify-center text-center">
+                                                <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#FEE2E2" }}>
+                                                    <svg
+                                                        className="w-6 h-6 text-red-600"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M6 18L18 6M6 6l12 12"
+                                                        ></path>
+                                                    </svg>
+                                                </div>
+                                                <AlertDialogTitle>Yahh! Error</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                    <div className="max-h-32 overflow-y-auto font-semibold">
+                                                        {errorMessages.map((message, index) => (
+                                                        <p key={index} className="text-red-500 italic">{message}</p>
+                                                        ))}
+                                                    </div>
+                                                    </AlertDialogDescription>
+                                                    <AlertDialogAction className="w-full" onClick={() => setOpenError(false)} style={{ background: "#4F46E5" }}>Kembali</AlertDialogAction>
+                                                </AlertDialogContent>
+                                                </AlertDialog>
                                         </form>
                                     </Form>
                                 </Card>

@@ -26,11 +26,12 @@ export default function UserManagement() {
     const [data, setData] = useState([])
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [page, setPage] = useState(1)
 
     useEffect(() => {
       const loadData = async () => {
         try {
-          const usersData = await fetchUsers({ token});
+          const usersData = await fetchUsers({ token, page });
           setData(usersData.data.data);
         } catch (error) {
           console.error('Failed to fetch data:', error);
@@ -39,7 +40,7 @@ export default function UserManagement() {
       if (token) {
         loadData();
       }
-    }, [token]);
+    }, [token, page]);
 
     const handleDelete = async () => {
       setIsLoading(true)
@@ -58,6 +59,11 @@ export default function UserManagement() {
       setSelectedUserId(userId);
       setIsDeleteAlertOpen(true);
     };
+
+    // Handle page change
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
     return(
         <div className="w-full max-w-7xl mx-auto">
@@ -165,43 +171,28 @@ export default function UserManagement() {
                       <hr className="mb-4" />
                       <CardFooter className="flex w-full">
                         <Pagination className="flex w-full justify-between">
-                          {/* Previous Button aligned to the far left */}
                           <PaginationItem className="flex-shrink-0">
-                            <PaginationPrevious href="#" />
+                            <PaginationPrevious
+                              href="#"
+                              onClick={() => handlePageChange(page > 1 ? page - 1 : 1)}
+                            />
                           </PaginationItem>
-
-                          {/* Page Numbers aligned in the center */}
                           <PaginationContent className="flex items-center space-x-2">
-                            <PaginationItem>
-                              <PaginationLink href="#">1</PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink href="#" isActive>
-                                2
-                              </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink href="#">3</PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink href="#">8</PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink href="#" isActive>
-                                9
-                              </PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink href="#">10</PaginationLink>
-                            </PaginationItem>
+                            {[...Array(10)].map((_, index) => (
+                              <PaginationItem key={index}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={page === index + 1}
+                                  onClick={() => handlePageChange(index + 1)}
+                                >
+                                  {index + 1}
+                                </PaginationLink>
+                              </PaginationItem>
+                            ))}
+                            <PaginationEllipsis />
                           </PaginationContent>
-
-                          {/* Next Button aligned to the far right */}
                           <PaginationItem className="flex-shrink-0">
-                            <PaginationNext href="#" />
+                            <PaginationNext href="#" onClick={() => handlePageChange(page + 1)} />
                           </PaginationItem>
                         </Pagination>
                       </CardFooter>
