@@ -55,15 +55,15 @@ export default function SignIn () {
     }
   };
 
-//   useEffect(() => {
-//     if (status === 'authenticated') {
-//       if (session?.user?.role === 1) {
-//         router.push('/dashboard');
-//       } else {
-//         router.push('/');
-//       }
-//     }
-//   }, [status, session, router]);
+  useEffect(() => {
+    if (status === 'authenticated') {
+      if (session?.user?.role === 1) {
+        router.push('/dashboard');
+      } else {
+        router.push('/');
+      }
+    }
+  }, [status, session, router]);
 
     return(
         <div className="w-full h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('/signin.png')" }}>
@@ -71,6 +71,7 @@ export default function SignIn () {
                 <h2 className="text-2xl mb-10 font-bold">Sign in to your account</h2>
                 <div className="bg-white p-10 rounded-lg shadow-lg" style={{ width: '450px' }}>
                     <form onSubmit={handleLogin}>
+                    {error && <div className="text-red-600 text-center mb-4">{error}</div>}
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-2" htmlFor="email">Email address</label>
                             <Input 
