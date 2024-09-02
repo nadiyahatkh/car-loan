@@ -12,12 +12,9 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import { createApplicantUser, fetchApplicantUserDetail, fetchCar, updateApplicantUser } from "@/app/apiService";
-import { format } from "date-fns";
+import { fetchApplicantUserDetail, fetchCar, updateApplicantUser } from "@/app/apiService";
 import Link from "next/link";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -27,6 +24,9 @@ import { TimePicker } from "@/components/time-picker/time-picker";
 import { useParams, useRouter } from "next/navigation";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Hearts } from "react-loader-spinner";
+import { format } from "date-fns";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
 
 const FormSchema = z.object({
     purpose: z.string().min(1, { message: "purpose is required." }),
@@ -48,9 +48,9 @@ export default function UpdatePengajuan() {
     const [carId, setCarId] = useState()
     const form = useForm({
         resolver: zodResolver(FormSchema),
+        car_id: "",
     });
     const [date, setDate] = useState()
-
     useEffect(() => {
         const loadData = async () => {
           try {
@@ -84,7 +84,7 @@ export default function UpdatePengajuan() {
         setIsLoading(true)
         try{
             console.log('Form data before submission:', data);
-            const result = await updateApplicantUser({data: payload, token });
+            const result = await updateApplicantUser({data: payload, token, id: submissionId });
             setOpenSuccess(true)
         } catch (error) {
             const message = JSON.parse(error.message);
@@ -101,11 +101,12 @@ export default function UpdatePengajuan() {
             
           if (token && submissionId) {
             const response = await fetchApplicantUserDetail({ token, id: submissionId });
-            console.log(response)
-            form.setValue('car_id', response.car_id, {shouldValidate: true})
-            form.setValue('submission_date', new Date(response.submission_date), {shouldValidate: true})
-            form.setValue('expiry_date', new Date(response.expiry_date), {shouldValidate: true})
-            form.setValue('purpose', response.purpose, {shouldValidate: true})
+            console.log('Fetched data:', response.data.dataApplicant);
+            form.setValue('car_id', String(response.data.dataApplicant.car.id), {shouldValidate: true})
+            form.setValue('submission_date', new Date(response.data.dataApplicant.submission_date), {shouldValidate: true})
+            form.setValue('expiry_date', new Date(response.data.dataApplicant.expiry_date), {shouldValidate: true})
+            form.setValue('purpose', response.data.dataApplicant.purpose, {shouldValidate: true})
+            setCarId(response.data.dataApplicant.car.id);
           }
         };
     
@@ -125,7 +126,7 @@ export default function UpdatePengajuan() {
                         <Slash />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
-                        <div>Pengajuan</div>
+                        <div>Update Pengajuan</div>
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
@@ -138,7 +139,7 @@ export default function UpdatePengajuan() {
                             {/* Text Section */}
                             <div className="w-full lg:w-[45%]">
                                 <div className="text-lg font-semibold">
-                                    Pengajuan Peminjaman
+                                    Update Pengajuan Peminjaman
                                 </div>
                                 <div className="text-muted-foreground text-xs">
                                     Silahkan isi form di samping
@@ -168,21 +169,21 @@ export default function UpdatePengajuan() {
                                                     <FormField
                                                         control={form.control}
                                                         name="car_id"
-                                                        render={({field}) => (
-                                                            <RadioGroup 
-                                                                value={field.value ? field.value.toString() : ""}
+                                                        render={({ field }) => (
+                                                            <RadioGroup
+                                                                value={form.watch("car_id")} // Ensure the value matches
                                                                 onValueChange={(value) => {
-                                                                field.onChange(value); // Update react-hook-form state
-                                                                setCarId(value); // Update component state
+                                                                    form.setValue("car_id", value);
+                                                                    setCarId(value);
                                                                 }}
-                                                                {...field}
-                                                                className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2">
-                                                            {cars?.map(car => (
-                                                                <div key={car.id} className="space-x-2">
-                                                                    <RadioGroupItem value={car.id.toString()} id={`car-${car.id}`} />
-                                                                    <Label htmlFor={`car-${car.id}`}>{car.name}</Label>
-                                                                </div>
-                                                            ))}
+                                                                className="space-y-2 lg:space-y-0 lg:flex lg:items-center lg:space-x-2"
+                                                            >
+                                                                {cars?.map((car) => (
+                                                                    <div key={car.id} className="space-x-2">
+                                                                        <RadioGroupItem value={String(car.id)} id={`car-${car.id}`} />
+                                                                        <Label htmlFor={`car-${car.id}`}>{car.name}</Label>
+                                                                    </div>
+                                                                ))}
                                                             </RadioGroup>
                                                         )}
                                                     />
@@ -201,13 +202,14 @@ export default function UpdatePengajuan() {
                                                                 <Button
                                                                     variant="outline"
                                                                     className={cn(
-                                                                    'w-full pl-3 text-left font-normal',
-                                                                    !field.value && 'text-muted-foreground'
+                                                                        'w-full pl-3 text-left font-normal',
+                                                                        !field.value && 'text-muted-foreground'
                                                                     )}
                                                                 >
-                                                                    {field.value
-                                                                    ? format(field.value, "d MMMM yyyy, HH:mm 'WIB'", { locale: localeId }) // Format tanggal dan waktu sesuai dengan format yang diinginkan
-                                                                    : <span>Pilih Waktu Peminjaman</span>}
+                                                                    {field.value instanceof Date && !isNaN(field.value.getTime())
+                                                                        ? format(field.value, "d MMMM yyyy, HH:mm 'WIB'", { locale: localeId }) 
+                                                                        : <span>Pilih Waktu Peminjaman</span>
+                                                                    }
                                                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                                 </Button>
                                                                 </FormControl>
@@ -236,12 +238,19 @@ export default function UpdatePengajuan() {
                                                         <Popover>
                                                             <PopoverTrigger asChild>
                                                             <FormControl>
-                                                                <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                                {field.value
-                                                                    ? format(field.value, "d MMMM yyyy, HH:mm 'WIB'", { locale: localeId }) // Format tanggal dan waktu sesuai dengan format yang diinginkan
-                                                                    : <span>Pilih Waktu Pengembalian</span>}
+                                                                <Button
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    'w-full pl-3 text-left font-normal',
+                                                                    !field.value && 'text-muted-foreground'
+                                                                )}
+                                                            >
+                                                                {field.value instanceof Date && !isNaN(field.value.getTime())
+                                                                    ? format(field.value, "d MMMM yyyy, HH:mm 'WIB'", { locale: localeId }) 
+                                                                    : <span>Pilih Waktu pengembalian</span>
+                                                                }
                                                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                                </Button>
+                                                            </Button>
                                                             </FormControl>
                                                             </PopoverTrigger>
                                                             <PopoverContent className="w-auto p-0" align="start">
@@ -306,6 +315,7 @@ export default function UpdatePengajuan() {
                                                     type="submit" 
                                                     variant="primary" 
                                                     className="text-white h-10 w-full sm:w-auto" 
+                                                    onClick={() => console.log(form)}
                                                     style={{ background: "#4F46E5" }}
                                                 >
                                                     {isLoading ? (
@@ -341,7 +351,7 @@ export default function UpdatePengajuan() {
                                                             </svg>
                                                         </div>
                                                         <AlertDialogTitle className="">Yeay! Sukses</AlertDialogTitle>
-                                                        <AlertDialogDescription className="">Anda telah berhasil menambahkan user baru.</AlertDialogDescription>
+                                                        <AlertDialogDescription className="">Anda telah berhasil meng-update applicant.</AlertDialogDescription>
                                                         <AlertDialogAction
                                                             onClick={() => router.push('/user/submission-user')}
                                                             style={{ background: "#4F46E5" }}

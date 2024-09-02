@@ -247,10 +247,10 @@ export default function SubmissionUser(){
                                                             <XCircle className="w-4 h-4 text-red-500" />
                                                             <p className="text-sm font-semibold text-red-500">Ditolak</p>
                                                         </div>
-                                                        ) : applicant.status === 'Belum DiSetujui' ? (
+                                                        ) : applicant.status === 'Belum Disetujui' ? (
                                                             <div className="flex items-center space-x-2">
-                                                                <RefreshCcwIcon className="w-4 h-4 text-red-500" />
-                                                                <p className="text-sm font-semibold text-red-500">Belum Disetujui</p>
+                                                                <RefreshCcwIcon className="w-4 h-4 text-black" />
+                                                                <p className="text-sm font-semibold text-black">Belum Disetujui</p>
                                                             </div>
                                                             ) : (
                                                                 <p className="text-sm font-semibold">{applicant.status}</p>
@@ -258,11 +258,18 @@ export default function SubmissionUser(){
                                             </TableCell>
                                             <TableCell className="text-sm">{applicant.notes || '-'}</TableCell>
                                             <TableCell className="text-sm">
-                                            <Button variant="primary" onClick={(e) => {e.stopPropagation()}} className="text-white h-8 w-20" style={{ background: "#4F46E5" }}>
-                                                <Link href={`/user/submission-user/update-submission/${applicant.id}`}>
+                                            {(applicant.status !== 'Disetujui' && applicant.status !== 'DiTolak') && (
+                                                <Button
+                                                    variant="primary"
+                                                    onClick={(e) => { e.stopPropagation(); }}
+                                                    className="text-white h-8 w-20"
+                                                    style={{ background: "#4F46E5" }}
+                                                >
+                                                    <Link href={`/user/submission-user/update-submission/${applicant.id}`}>
                                                         Edit
-                                                </Link>
-                                            </Button>
+                                                    </Link>
+                                                </Button>
+                                            )}
                                             </TableCell>
                                         </TableRow>
                                 ))

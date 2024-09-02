@@ -79,7 +79,7 @@ export const fetchCar = async ({ token }) => {
       }
     };
 
-    export const updateApplicantUser = async ({ id, data, token, path }) => {
+    export const updateApplicantUser = async ({ id, data, token }) => {
       try {
         const formData = new FormData();
         formData.append('purpose', data.purpose);
@@ -105,7 +105,7 @@ export const fetchCar = async ({ token }) => {
         }
         return await response.json();
       } catch (error) {
-        console.log('Error creating applicant:', error);
+        console.log('Error update applicant:', error);
         throw error;
       }
     };
