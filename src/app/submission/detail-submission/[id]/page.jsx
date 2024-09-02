@@ -130,7 +130,7 @@ export default function DetailSubmission() {
                                 <div className="w-2/4">{detail?.status}</div>
                             </div>
 
-                            {detail?.status === 'Ditolak' && (
+                            {detail?.status === 'DiTolak' && (
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Catatan</div>
                                 <div className="w-2/4">
@@ -139,7 +139,7 @@ export default function DetailSubmission() {
                             </div>
                             )}
 
-                            {detail?.status !== 'Disetujui' && detail?.status !== 'Ditolak' && (
+                            {detail?.status !== 'Disetujui' && detail?.status !== 'DiTolak' && (
                                 <div className="flex justify-center items-center py-4 text-sm">
                                     <div className="w-2/4">
                                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

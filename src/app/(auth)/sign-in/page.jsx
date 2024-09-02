@@ -58,7 +58,7 @@ export default function SignIn () {
   useEffect(() => {
     if (status === 'authenticated') {
       if (session?.user?.role === 1) {
-        router.push('/dashboard');
+        router.push('/submission');
       } else {
         router.push('/');
       }

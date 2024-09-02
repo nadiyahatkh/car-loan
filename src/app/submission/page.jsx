@@ -69,7 +69,7 @@ export default function SubmissionAdmin() {
       try {
         await acceptApplicant({ id, token });
         const applicantData = await fetchApplicantAdmin({ token });
-        console.log('Data after accepting:', applicantData); // Debugging
+        console.log('Data after accept:', applicantData);
         setData(applicantData.dataApplicant.data);
         setCars(applicantData.car);
       } catch (error) {
@@ -86,6 +86,7 @@ export default function SubmissionAdmin() {
       setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: true }));
       try {
         await denyApplicant({ id: currentApplicantId, token, notes });
+        
         const applicantData = await fetchApplicantAdmin({ token });
         console.log('Data after denying:', applicantData); // Debugging
         setData(applicantData.dataApplicant.data);
@@ -127,7 +128,6 @@ export default function SubmissionAdmin() {
       };
 
       const filteredData = data.filter((applicant) => {
-        console.log("Filtering data with statusFilter:", statusFilter);
         return statusFilter.length === 0 || statusFilter.includes(applicant.status);
     });
 

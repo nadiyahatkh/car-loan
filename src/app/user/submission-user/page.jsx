@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,15 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "@/components/submission-user/status-filter";
 import { statuses } from "@/components/submission-user/constants";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination"
 
 export default function SubmissionUser(){
     const router = useRouter();
@@ -32,6 +41,7 @@ export default function SubmissionUser(){
     const [search, setSearch] = useState('')
     const [pendingSearch, setPendingSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState([]);
+    const [page, setPage] = useState(1)
 
     const defaultDate = {
         from: new Date(2024, 0, 1),
@@ -59,7 +69,7 @@ export default function SubmissionUser(){
           try {
             const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
             const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-            const applicantData = await fetchApplicantUser({ token, start_date, end_date, search, status: statusFilter });
+            const applicantData = await fetchApplicantUser({ token, start_date, end_date, search, status: statusFilter, page });
             setData(applicantData.Applicant.data);
             setCars(applicantData.car);
           } catch (error) {
@@ -70,7 +80,7 @@ export default function SubmissionUser(){
           if (token) {
             submissionData();
           }
-        }, [token, date, search, statusFilter]);
+        }, [token, date, search, statusFilter, page]);
 
         const handleRowClick = (id) => {
             router.push(`/user/detail-submission/${id}`);
@@ -102,6 +112,10 @@ export default function SubmissionUser(){
             console.log("Filtering data with statusFilter:", statusFilter);
             return statusFilter.length === 0 || statusFilter.includes(applicant.status);
         });
+
+        const handlePageChange = (newPage) => {
+            setPage(newPage);
+          };
 
   return(
       <div className="w-full max-w-7xl mx-auto">
@@ -285,6 +299,33 @@ export default function SubmissionUser(){
                           </TableBody>
                       </Table>
                   </CardContent>
+                  <CardFooter className="flex justify-between items-center">
+                  <Pagination className="flex w-full justify-between">
+                          <PaginationItem className="flex-shrink-0">
+                            <PaginationPrevious
+                              href="#"
+                              onClick={() => handlePageChange(page > 1 ? page - 1 : 1)}
+                            />
+                          </PaginationItem>
+                          <PaginationContent className="flex items-center space-x-2">
+                            {[...Array(10)].map((_, index) => (
+                              <PaginationItem key={index}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={page === index + 1}
+                                  onClick={() => handlePageChange(index + 1)}
+                                >
+                                  {index + 1}
+                                </PaginationLink>
+                              </PaginationItem>
+                            ))}
+                            <PaginationEllipsis />
+                          </PaginationContent>
+                          <PaginationItem className="flex-shrink-0">
+                            <PaginationNext href="#" onClick={() => handlePageChange(page + 1)} />
+                          </PaginationItem>
+                        </Pagination>
+                    </CardFooter>
               </Card>
           </div>
       </div>
