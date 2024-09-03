@@ -23,7 +23,7 @@ import { id } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "@/components/submission-admin/status-filter";
 import { statuses } from "@/components/submission-admin/constans";
-
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function SubmissionAdmin() {
   const router = useRouter();
@@ -131,6 +131,39 @@ export default function SubmissionAdmin() {
         return statusFilter.length === 0 || statusFilter.includes(applicant.status);
     });
 
+    const handleExportToExcel = async () => {
+      try {
+        // Make a request to the Laravel backend endpoint
+        const response = await fetch(`${BASE_URL}/api/export/applicants`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // Include token if required
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to download file');
+        }
+  
+        // Get the blob from the response
+        const blob = await response.blob();
+  
+        // Create a link element to trigger the download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'applicants.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url); // Clean up
+      } catch (error) {
+        console.error('Error exporting to Excel:', error);
+      }
+    };
+
     return (
         <div className=" w-full max-w-7xl mx-auto">
         <div className="flex items-center space-x-3 mb-5">
@@ -235,11 +268,9 @@ export default function SubmissionAdmin() {
                           Reset Date
                       </Button>
                     )}
-                    <Button variant="solid" className="text-white flex items-center" style={{ background: "#4F46E5" }}>
-                        <Link href="./user-management/add-user" className="flex items-center space-x-2">
+                    <Button variant="solid" onClick={handleExportToExcel} className="text-white flex items-center" style={{ background: "#4F46E5" }}>
                             <img src="/folderX.png" alt="Export Icon" className="w-4 h-4" />
                             <div className="text-sm">Export</div>
-                        </Link>
                     </Button>
                   </div>
                 </div>

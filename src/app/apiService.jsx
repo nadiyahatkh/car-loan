@@ -141,6 +141,7 @@ export const fetchCar = async ({ token }) => {
             })
             .then((res) => res.json())
             .then((data) => {
+              console.log(data); // Tambahkan ini untuk melihat isi response dari API
              return {
               data: data,
               message: "successs"

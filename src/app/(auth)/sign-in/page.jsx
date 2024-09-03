@@ -60,7 +60,7 @@ export default function SignIn () {
       if (session?.user?.role === 1) {
         router.push('/submission');
       } else {
-        router.push('/');
+        router.push('/user/submission-user');
       }
     }
   }, [status, session, router]);
