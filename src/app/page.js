@@ -1,11 +1,26 @@
+'use client'
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Navbar from "./navbar";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-
-
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/sign-in');
+    }
+  }, [status]);
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
   
   return (
     <>
