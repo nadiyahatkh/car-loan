@@ -133,7 +133,7 @@ export const fetchCar = async ({ token }) => {
     export const fetchApplicantAdmin = async ({token, start_date, end_date, search, status, page}) => {
         try {
           const statusParams = status?.map(s => `status[]=${s}`).join('&');
-            const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}$page=${page}`, {
+            const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}&page=${page}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`,
