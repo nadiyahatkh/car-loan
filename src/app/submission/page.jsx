@@ -1,7 +1,7 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ import { id } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "@/components/submission-admin/status-filter";
 import { statuses } from "@/components/submission-admin/constans";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function SubmissionAdmin() {
@@ -38,6 +39,7 @@ export default function SubmissionAdmin() {
   const [currentApplicantId, setCurrentApplicantId] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false); 
   const [statusFilter, setStatusFilter] = useState([]);
+  const [page, setPage] = useState(1)
   const defaultDate = {
     from: new Date(2024, 0, 1),
     to: new Date(2024, 11, 31)
@@ -50,8 +52,8 @@ export default function SubmissionAdmin() {
       try {
         const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
         const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter });
-        console.log('Data loaded:', applicantData); // Debugging
+        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page });
+        console.log('Data loaded:', applicantData);
         setData(applicantData.dataApplicant.data);
         setCars(applicantData.car)
       } catch (error) {
@@ -133,12 +135,10 @@ export default function SubmissionAdmin() {
 
     const handleExportToExcel = async () => {
       try {
-        // Make a request to the Laravel backend endpoint
         const response = await fetch(`${BASE_URL}/api/export/applicants`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            // Include token if required
             'Authorization': `Bearer ${token}`,
           },
         });
@@ -162,6 +162,10 @@ export default function SubmissionAdmin() {
       } catch (error) {
         console.error('Error exporting to Excel:', error);
       }
+    };
+
+    const handlePageChange = (newPage) => {
+      setPage(newPage);
     };
 
     return (
@@ -421,6 +425,33 @@ export default function SubmissionAdmin() {
                       </TableBody>
                   </Table>
                 </CardContent>
+                <CardFooter className="flex justify-between items-center">
+                  <Pagination className="flex w-full justify-between">
+                          <PaginationItem className="flex-shrink-0">
+                            <PaginationPrevious
+                              href="#"
+                              onClick={() => handlePageChange(page > 1 ? page - 1 : 1)}
+                            />
+                          </PaginationItem>
+                          <PaginationContent className="flex items-center space-x-2">
+                            {[...Array(10)].map((_, index) => (
+                              <PaginationItem key={index}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={page === index + 1}
+                                  onClick={() => handlePageChange(index + 1)}
+                                >
+                                  {index + 1}
+                                </PaginationLink>
+                              </PaginationItem>
+                            ))}
+                            <PaginationEllipsis />
+                          </PaginationContent>
+                          <PaginationItem className="flex-shrink-0">
+                            <PaginationNext href="#" onClick={() => handlePageChange(page + 1)} />
+                          </PaginationItem>
+                        </Pagination>
+                    </CardFooter>
             </Card>
         </div>
         </div>
