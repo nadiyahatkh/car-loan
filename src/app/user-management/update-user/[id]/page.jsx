@@ -282,7 +282,7 @@ export default function UpdateUser (){
                                                             </svg>
                                                         </div>
                                                         <AlertDialogTitle className="">Yeay! Sukses</AlertDialogTitle>
-                                                        <AlertDialogDescription className="">Anda telah berhasil menambahkan user baru.</AlertDialogDescription>
+                                                        <AlertDialogDescription className="">Anda telah berhasil mengubah user.</AlertDialogDescription>
                                                         <AlertDialogAction
                                                             onClick={() => router.push('/user-management')}
                                                             style={{ background: "#4F46E5" }}
