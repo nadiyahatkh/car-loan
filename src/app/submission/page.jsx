@@ -64,7 +64,7 @@ export default function SubmissionAdmin() {
       if (token) {
         submissionData();
       }
-    }, [token, date, search, statusFilter]);
+    }, [token, date, search, statusFilter, page]);
 
     const handleAccept = async (id) => {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));

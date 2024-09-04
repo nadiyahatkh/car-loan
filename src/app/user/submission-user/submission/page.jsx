@@ -324,7 +324,7 @@ export default function Pengajuan() {
                                                             </svg>
                                                         </div>
                                                         <AlertDialogTitle className="">Yeay! Sukses</AlertDialogTitle>
-                                                        <AlertDialogDescription className="">Anda telah berhasil menambahkan user baru.</AlertDialogDescription>
+                                                        <AlertDialogDescription className="">Anda telah berhasil menambahkan pengajuan mobil.</AlertDialogDescription>
                                                         <AlertDialogAction
                                                             onClick={() => router.push('/user/submission-user')}
                                                             style={{ background: "#4F46E5" }}
