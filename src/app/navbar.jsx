@@ -6,8 +6,9 @@ import { LogIn, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Hearts } from "react-loader-spinner";
+import { fetchNavbarProfile } from "./apiService";
 
 const disabledNavbar = ["/sign-in"];
 
@@ -18,6 +19,7 @@ export default function Navbar() {
     const userRole = session?.user?.role;
     const [showDialogLogOut, setShowDialogLogOut] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [foto, setFoto] = useState()
     
 
     const handleSignOut = () => {
@@ -48,7 +50,20 @@ export default function Navbar() {
 
     const filteredRoutes = routes.filter(route => route.roles.includes(userRole));
 
-    
+    useEffect(() => {
+        const loadDataFoto = async () => {
+            try{
+                const profileData = await fetchNavbarProfile({token: session?.user?.token})
+                console.log(profileData)
+                setFoto(profileData.data.path)
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+              }
+        }
+        if (session?.user?.token) {
+            loadDataFoto()
+        }
+    }, [session?.user?.token])
 
     if (disabledNavbar.includes(pathname)) {
         return <div></div>;
@@ -64,7 +79,7 @@ export default function Navbar() {
                         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
                             <DropdownMenu>
                                 <DropdownMenuTrigger>
-                                    <img className="w-8 h-8 rounded-full" src="/signin.png" alt="user photo" />
+                                    <img className="w-8 h-8 rounded-full" src={foto} alt="user photo" />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
