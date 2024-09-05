@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Hearts } from "react-loader-spinner";
 import { fetchNavbarProfile } from "./apiService";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const disabledNavbar = ["/sign-in"];
 
@@ -79,7 +80,10 @@ export default function Navbar() {
                         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
                             <DropdownMenu>
                                 <DropdownMenuTrigger>
-                                    <img className="w-8 h-8 rounded-full" src={foto} alt="user photo" />
+                                <Avatar className="w-8 h-8 rounded-full">
+                                    <AvatarImage src={foto} alt="@shadcn" />
+                                    <AvatarFallback>{session?.user?.name || 'Guest'}</AvatarFallback>
+                                </Avatar>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
