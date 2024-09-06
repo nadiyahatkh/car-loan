@@ -47,20 +47,20 @@ export default function SubmissionAdmin() {
 
   const [date, setDate] = useState(defaultDate);
 
-  useEffect(() => {
-    const submissionData = async () => {
-      try {
-        const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
-        const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-        const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page });
-        console.log('Data loaded:', applicantData);
-        setData(applicantData.dataApplicant.data);
-        setCars(applicantData.car)
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      }
-    };
+  const submissionData = async () => {
+    try {
+      const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
+      const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
+      const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page });
+      console.log('Data loaded:', applicantData);
+      setData(applicantData.dataApplicant.data);
+      setCars(applicantData.car)
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
   
+  useEffect(() => {
       if (token) {
         submissionData();
       }
@@ -70,10 +70,11 @@ export default function SubmissionAdmin() {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));
       try {
         await acceptApplicant({ id, token });
-        const applicantData = await fetchApplicantAdmin({ token });
-        console.log('Data after accept:', applicantData);
-        setData(applicantData.dataApplicant.data);
-        setCars(applicantData.car);
+        submissionData()
+        // const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page });
+        // console.log('Data after accept:', applicantData);
+        // setData(applicantData.dataApplicant.data);
+        // setCars(applicantData.car);
       } catch (error) {
         console.error('Error accepting applicant:', error);
       } finally {
@@ -89,10 +90,7 @@ export default function SubmissionAdmin() {
       try {
         await denyApplicant({ id: currentApplicantId, token, notes });
         
-        const applicantData = await fetchApplicantAdmin({ token });
-        console.log('Data after denying:', applicantData); // Debugging
-        setData(applicantData.dataApplicant.data);
-        setCars(applicantData.car);
+        submissionData()
         setNotes('');
         setCurrentApplicantId(null);
         setIsDialogOpen(false);
