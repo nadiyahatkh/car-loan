@@ -80,10 +80,11 @@ export default function Navbar() {
                         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
                             <DropdownMenu>
                                 <DropdownMenuTrigger>
-                                <Avatar className="w-8 h-8 rounded-full">
+                                    <img src={foto} alt="foto" className="w-8 h-8 rounded-full" />
+                                {/* <Avatar className="w-8 h-8 rounded-full">
                                     <AvatarImage src={foto} alt="@shadcn" />
                                     <AvatarFallback>{session?.user?.name || 'Guest'}</AvatarFallback>
-                                </Avatar>
+                                </Avatar> */}
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
