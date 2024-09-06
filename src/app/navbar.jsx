@@ -9,7 +9,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Hearts } from "react-loader-spinner";
 import { fetchNavbarProfile } from "./apiService";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const disabledNavbar = ["/sign-in"];
 
