@@ -299,33 +299,41 @@ export default function SubmissionUser(){
                           </TableBody>
                       </Table>
                   </CardContent>
-                  <CardFooter className="flex justify-between items-center">
-                  <Pagination className="flex w-full justify-between">
-                          <PaginationItem className="flex-shrink-0">
-                            <PaginationPrevious
-                              href="#"
-                              onClick={() => handlePageChange(page > 1 ? page - 1 : 1)}
-                            />
-                          </PaginationItem>
-                          <PaginationContent className="flex items-center space-x-2">
-                            {[...Array(10)].map((_, index) => (
-                              <PaginationItem key={index}>
-                                <PaginationLink
-                                  href="#"
-                                  isActive={page === index + 1}
-                                  onClick={() => handlePageChange(index + 1)}
-                                >
-                                  {index + 1}
-                                </PaginationLink>
-                              </PaginationItem>
-                            ))}
-                            <PaginationEllipsis />
-                          </PaginationContent>
-                          <PaginationItem className="flex-shrink-0">
-                            <PaginationNext href="#" onClick={() => handlePageChange(page + 1)} />
-                          </PaginationItem>
-                        </Pagination>
-                    </CardFooter>
+                  <CardFooter className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+  {/* Previous Button */}
+  <PaginationPrevious
+    onClick={() => handlePageChange(page - 1)}
+    disabled={page === 1}
+    className="px-4 py-2 text-sm"
+  >
+    Previous
+  </PaginationPrevious>
+
+  {/* Pagination Items */}
+  <PaginationContent className="flex flex-wrap justify-center md:justify-start space-x-2">
+    {Array.from({ length: 5 }).map((_, index) => (
+      <PaginationItem key={index}>
+        <PaginationLink
+          isActive={page === index + 1}
+          onClick={() => handlePageChange(index + 1)}
+          className="px-2 py-1 text-sm"
+        >
+          {index + 1}
+        </PaginationLink>
+      </PaginationItem>
+    ))}
+  </PaginationContent>
+
+  {/* Next Button */}
+  <PaginationNext
+    onClick={() => handlePageChange(page + 1)}
+    disabled={page === 5} // Example limit of 5 pages
+    className="px-4 py-2 text-sm"
+  >
+    Next
+  </PaginationNext>
+</CardFooter>
+
               </Card>
           </div>
       </div>

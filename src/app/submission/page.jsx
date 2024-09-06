@@ -71,10 +71,6 @@ export default function SubmissionAdmin() {
       try {
         await acceptApplicant({ id, token });
         submissionData()
-        // const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page });
-        // console.log('Data after accept:', applicantData);
-        // setData(applicantData.dataApplicant.data);
-        // setCars(applicantData.car);
       } catch (error) {
         console.error('Error accepting applicant:', error);
       } finally {
