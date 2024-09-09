@@ -52,7 +52,8 @@ export default function DetailSubmission() {
         setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: true }));
         try {
           await denyApplicant({ id: currentApplicantId, token, notes });
-    
+          router.push('/submission');
+            
           
         } catch (error) {
           console.error('Error denying applicant:', error);

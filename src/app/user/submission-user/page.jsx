@@ -70,6 +70,7 @@ export default function SubmissionUser(){
             const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
             const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
             const applicantData = await fetchApplicantUser({ token, start_date, end_date, search, status: statusFilter, page });
+            console.log(applicantData)
             setData(applicantData.Applicant.data);
             setCars(applicantData.car);
           } catch (error) {
@@ -234,6 +235,7 @@ export default function SubmissionUser(){
                                   <TableHead className="text-sm font-semibold text-black">Tujuan</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Waktu Peminjaman</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Waktu Pengembalian</TableHead>
+                                  <TableHead className="text-sm font-semibold text-black">Mobil</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Status</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Catatan</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Aksi</TableHead>
@@ -249,6 +251,9 @@ export default function SubmissionUser(){
                                             </TableCell>
                                             <TableCell className="text-sm">
                                                 {applicant.expiry_date ? format(new Date(applicant.expiry_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: id }) : '-'}
+                                            </TableCell>
+                                            <TableCell>
+                                              {applicant.car_name}
                                             </TableCell>
                                             <TableCell >
                                                 {applicant.status === 'Disetujui' ? (
@@ -316,7 +321,7 @@ export default function SubmissionUser(){
         <PaginationLink
           isActive={page === index + 1}
           onClick={() => handlePageChange(index + 1)}
-          className="px-2 py-1 text-sm"
+          className="px-2 py-1 text-sm cursor-pointer"
         >
           {index + 1}
         </PaginationLink>

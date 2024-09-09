@@ -7,7 +7,7 @@ import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, Tabl
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
-import { CheckCheck, FolderXIcon, XCircleIcon } from "lucide-react";
+import { CheckCheck, FolderXIcon, LoaderCircle, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -281,6 +281,8 @@ export default function SubmissionAdmin() {
                           <TableHead className="text-sm font-semibold text-black">Waktu Peminjaman</TableHead>
                           <TableHead className="text-sm font-semibold text-black">Waktu Pengembalian</TableHead>
                           <TableHead className="text-sm font-semibold text-black">Peminjaman</TableHead>
+                          <TableHead className="text-sm font-semibold text-black">Mobil</TableHead>
+                          <TableHead className="text-sm font-semibold text-black">Status</TableHead>
                           <TableHead className="text-sm font-semibold text-black">Aksi</TableHead>
                           </TableRow>
                       </TableHeader>
@@ -308,8 +310,32 @@ export default function SubmissionAdmin() {
                                       </div>
                                     </div>
                               </TableCell>
+                              <TableCell>
+                                {applicant.car_name}
+                              </TableCell>
                               <TableCell className="">
-                              {applicant.status === 'Belum Disetujui' ? (
+                               {applicant.status === 'Disetujui' ? (
+                                  <div className="flex items-center space-x-2">
+                                    <CheckCheck className="w-4 h-4 text-green-500" />
+                                    <p className="text-sm font-semibold text-green-500">Disetujui</p>
+                                  </div>
+                                ) : applicant.status === 'DiTolak' ? (
+                                  <div className="flex items-center space-x-2">
+                                    <XCircleIcon className="w-4 h-4 text-red-500" />
+                                    <p className="text-sm font-semibold text-red-500">Ditolak</p>
+                                  </div>
+                                ) : applicant.status === 'Belum Disetujui' ? (
+                                    <div className="flex items-center space-x-2">
+                                    <LoaderCircle className="w-4 h-4 text-black" />
+                                    <p className="text-sm font-semibold text-black">Belum Disetujui</p>
+                                  </div>
+                                ) :
+                                (
+                                  <p className="text-sm font-semibold">{applicant.status}</p>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                              {applicant.status === 'Belum Disetujui' &&
                                   <div className="flex space-x-2">
                                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                       <DialogTrigger asChild>
@@ -393,19 +419,7 @@ export default function SubmissionAdmin() {
                                       )}
                                     </Button>
                                   </div>
-                                ) : applicant.status === 'Disetujui' ? (
-                                  <div className="flex items-center space-x-2">
-                                    <CheckCheck className="w-4 h-4 text-green-500" />
-                                    <p className="text-sm font-semibold text-green-500">Disetujui</p>
-                                  </div>
-                                ) : applicant.status === 'DiTolak' ? (
-                                  <div className="flex items-center space-x-2">
-                                    <XCircleIcon className="w-4 h-4 text-red-500" />
-                                    <p className="text-sm font-semibold text-red-500">Ditolak</p>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm font-semibold">{applicant.status}</p>
-                                )}
+                                }
                               </TableCell>
                           </TableRow>
                           ))
