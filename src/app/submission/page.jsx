@@ -39,6 +39,7 @@ export default function SubmissionAdmin() {
   const [currentApplicantId, setCurrentApplicantId] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false); 
   const [statusFilter, setStatusFilter] = useState([]);
+  const [selectedCarId, setSelectedCarId] = useState();
   const [page, setPage] = useState(1)
   const defaultDate = {
     from: new Date(2024, 0, 1),
@@ -51,7 +52,16 @@ export default function SubmissionAdmin() {
     try {
       const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
       const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-      const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page });
+      console.log('Fetching data with:', {
+        token,
+        start_date,
+        end_date,
+        search,
+        status: statusFilter,
+        page,
+        car_id: selectedCarId
+      });
+      const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page, car_id: selectedCarId });
       console.log('Data loaded:', applicantData);
       setData(applicantData.dataApplicant);
       setCars(applicantData.car)
@@ -64,7 +74,7 @@ export default function SubmissionAdmin() {
       if (token) {
         submissionData();
       }
-    }, [token, date, search, statusFilter, page]);
+    }, [token, date, search, statusFilter, page, selectedCarId]);
 
     const handleAccept = async (id) => {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));
@@ -124,8 +134,11 @@ export default function SubmissionAdmin() {
       };
 
       const filteredData = data?.filter((applicant) => {
-        return statusFilter.length === 0 || statusFilter.includes(applicant.status);
-    });
+        const matchesStatus = statusFilter.length === 0 || statusFilter.includes(applicant.status);
+        const matchesCarId = selectedCarId ?  applicant.car_id === selectedCarId : true;
+        console.log('Filtering applicant:', applicant, { matchesStatus, matchesCarId });
+        return matchesStatus && matchesCarId;
+      });
 
     const handleExportToExcel = async () => {
       try {
@@ -162,15 +175,22 @@ export default function SubmissionAdmin() {
       setPage(newPage);
     };
 
+    const handleCarSelection = (carId) => {
+      setSelectedCarId(carId);
+      // Optionally trigger data refresh
+      submissionData();
+    };
+    
+
     return (
         <div className=" w-full max-w-7xl mx-auto">
         <div className="flex items-center space-x-3 mb-5">
             
         {Array.isArray(cars) && cars.length > 0 ? (
           cars.map((car) => (
-            <Card key={car.id} className="rounded-none flex relative w-full md:w-auto">
+            <Card key={car.id} onClick={() => handleCarSelection(car.id)} className="rounded-none flex relative w-full md:w-auto cursor-pointer">
               <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>{car.status_name}</p>
+                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>{car.status_name} | {car.borrowed_by}</p>
               </div>
               <div className="flex flex-col p-4 pt-12">
                 <p className="font-bold text-sm">{car.name}</p>
@@ -288,7 +308,7 @@ export default function SubmissionAdmin() {
                       </TableHeader>
                       <TableBody>
                           {filteredData?.length > 0 ? (
-                            filteredData?.map((applicant) => (
+                            filteredData.map((applicant) => (
                           <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                               <TableCell className="text-sm">{applicant.purpose}</TableCell>
                               <TableCell className="text-sm">
