@@ -53,7 +53,7 @@ export default function SubmissionAdmin() {
       const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
       const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page });
       console.log('Data loaded:', applicantData);
-      setData(applicantData.dataApplicant.data);
+      setData(applicantData.dataApplicant);
       setCars(applicantData.car)
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -123,7 +123,7 @@ export default function SubmissionAdmin() {
           }
       };
 
-      const filteredData = data.filter((applicant) => {
+      const filteredData = data?.filter((applicant) => {
         return statusFilter.length === 0 || statusFilter.includes(applicant.status);
     });
 
@@ -287,8 +287,8 @@ export default function SubmissionAdmin() {
                           </TableRow>
                       </TableHeader>
                       <TableBody>
-                          {filteredData.length > 0 ? (
-                            filteredData.map((applicant) => (
+                          {filteredData?.length > 0 ? (
+                            filteredData?.map((applicant) => (
                           <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                               <TableCell className="text-sm">{applicant.purpose}</TableCell>
                               <TableCell className="text-sm">
