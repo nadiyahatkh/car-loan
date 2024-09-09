@@ -87,6 +87,10 @@ export default function DetailSubmissionUser() {
                                 <div className="w-full lg:w-2/4">{formatDate(detail?.expiry_date)}</div>
                             </div>
                             <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
+                                <div className="font-semibold w-full lg:w-1/4">Mobil</div>
+                                <div className="w-full lg:w-2/4">{detail?.car.name}</div>
+                            </div>
+                            <div className="flex flex-col lg:flex-row justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-full lg:w-1/4">Tujuan</div>
                                 <div className="w-full lg:w-2/4">
                                     <p className="font-semibold">Peminjaman Mobil</p>

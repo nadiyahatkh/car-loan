@@ -29,6 +29,7 @@ export default function DetailSubmission() {
         const loadDetail = async () => {
           if (token && submissionId) {
             const response = await fetchApplicantAdminDetail({ token, id: submissionId });
+            console.log(response)
             setDetail(response.data.dataApplicant);
           }
         };
@@ -118,6 +119,10 @@ export default function DetailSubmission() {
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Waktu Pengembalian (Estimasi)</div>
                                 <div className="w-2/4">{formatDate(detail?.expiry_date)}</div>
+                            </div>
+                            <div className="flex justify-between items-start py-4 text-sm">
+                                <div className="font-semibold w-1/4">Mobil</div>
+                                <div className="w-2/4">{detail?.car.name}</div>
                             </div>
                             <div className="flex justify-between items-start py-4 text-sm">
                                 <div className="font-semibold w-1/4">Tujuan</div>
