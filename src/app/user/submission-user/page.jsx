@@ -125,7 +125,18 @@ export default function SubmissionUser(){
           cars.map((car) => (
             <Card key={car.id} className="rounded-none flex relative w-full md:w-auto">
               <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>{car.status_name}</p>
+                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>{car.status_name} | {car.borrowed_by}</p>
+                <p className="text-sm">
+                {car.expiry_date ? 
+                  (() => {
+                    const date = new Date(car.expiry_date);
+                    return isNaN(date.getTime()) 
+                      ? '-' 
+                      : format(date, "dd MMMM yyyy, HH:mm 'WIB'", { locale: id });
+                  })()
+                  : '-'
+                }
+                </p>
               </div>
               <div className="flex flex-col p-4 pt-12">
                 <p className="font-bold text-sm">{car.name}</p>

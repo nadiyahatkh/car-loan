@@ -41,6 +41,7 @@ export default function SubmissionAdmin() {
   const [statusFilter, setStatusFilter] = useState([]);
   const [selectedCarId, setSelectedCarId] = useState();
   const [page, setPage] = useState(1)
+  const [exportData, setExportData] = useState(false)
   const defaultDate = {
     from: new Date(2024, 0, 1),
     to: new Date(2024, 11, 31)
@@ -48,33 +49,42 @@ export default function SubmissionAdmin() {
 
   const [date, setDate] = useState(defaultDate);
 
-  const submissionData = async () => {
+  const submissionData = async (exportData = false) => {
     try {
       const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
       const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-      console.log('Fetching data with:', {
+      const applicantData = await fetchApplicantAdmin({
         token,
         start_date,
         end_date,
         search,
         status: statusFilter,
         page,
-        car_id: selectedCarId
+        car_id: selectedCarId,
+        exportData, // Pass exportData to the API call
       });
-      const applicantData = await fetchApplicantAdmin({ token, start_date, end_date, search, status: statusFilter, page, car_id: selectedCarId });
-      console.log('Data loaded:', applicantData);
+      console.log('Data loaded:', applicantData.car);
       setData(applicantData.dataApplicant);
-      setCars(applicantData.car)
+      setCars(applicantData.car);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     }
   };
+  
   
   useEffect(() => {
       if (token) {
         submissionData();
       }
     }, [token, date, search, statusFilter, page, selectedCarId]);
+
+
+    const handleExport = () => {
+      setExportData(true); // Set state exportData menjadi true
+      submissionData(); // Panggil fungsi fetch data dengan parameter export aktif
+      setExportData(false); // Kembalikan state exportData menjadi false setelah selesai
+    }
+    
 
     const handleAccept = async (id) => {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));
@@ -87,6 +97,7 @@ export default function SubmissionAdmin() {
         setLoadingStatus((prevState) => ({ ...prevState, [id]: false }));
       }
     };
+
 
     const handleDeny = async (event) => {
       event.preventDefault();
@@ -140,36 +151,7 @@ export default function SubmissionAdmin() {
         return matchesStatus && matchesCarId;
       });
 
-    const handleExportToExcel = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/api/export/applicants`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-  
-        if (!response.ok) {
-          throw new Error('Failed to download file');
-        }
-  
-        // Get the blob from the response
-        const blob = await response.blob();
-  
-        // Create a link element to trigger the download
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'applicants.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url); // Clean up
-      } catch (error) {
-        console.error('Error exporting to Excel:', error);
-      }
-    };
+    
 
     const handlePageChange = (newPage) => {
       setPage(newPage);
@@ -191,6 +173,17 @@ export default function SubmissionAdmin() {
             <Card key={car.id} onClick={() => handleCarSelection(car.id)} className="rounded-none flex relative w-full md:w-auto cursor-pointer">
               <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
                 <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>{car.status_name} | {car.borrowed_by}</p>
+                <p className="text-sm">
+                {car.expiry_date ? 
+                  (() => {
+                    const date = new Date(car.expiry_date);
+                    return isNaN(date.getTime()) 
+                      ? '-' 
+                      : format(date, "dd MMMM yyyy, HH:mm 'WIB'", { locale: id });
+                  })()
+                  : '-'
+                }
+                </p>
               </div>
               <div className="flex flex-col p-4 pt-12">
                 <p className="font-bold text-sm">{car.name}</p>
@@ -286,7 +279,7 @@ export default function SubmissionAdmin() {
                           Reset Date
                       </Button>
                     )}
-                    <Button variant="solid" onClick={handleExportToExcel} className="text-white flex items-center" style={{ background: "#4F46E5" }}>
+                    <Button variant="solid" onCLick={handleExport} className="text-white flex items-center" style={{ background: "#4F46E5" }}>
                             <img src="/folderX.png" alt="Export Icon" className="w-4 h-4" />
                             <div className="text-sm">Export</div>
                     </Button>
