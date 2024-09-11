@@ -63,7 +63,6 @@ export default function SubmissionAdmin() {
         car_id: selectedCarId,
         exportData, // Pass exportData to the API call
       });
-      console.log('Data loaded:', applicantData.car);
       setData(applicantData.dataApplicant);
       setCars(applicantData.car);
     } catch (error) {
@@ -76,10 +75,11 @@ export default function SubmissionAdmin() {
       if (token) {
         submissionData();
       }
-    }, [token, date, search, statusFilter, page, selectedCarId]);
+    }, [token, date, search, statusFilter, page, selectedCarId, exportData]);
 
 
     const handleExport = () => {
+      console.log(handleExport)
       setExportData(true); // Set state exportData menjadi true
       submissionData(); // Panggil fungsi fetch data dengan parameter export aktif
       setExportData(false); // Kembalikan state exportData menjadi false setelah selesai
@@ -147,7 +147,6 @@ export default function SubmissionAdmin() {
       const filteredData = data?.filter((applicant) => {
         const matchesStatus = statusFilter.length === 0 || statusFilter.includes(applicant.status);
         const matchesCarId = selectedCarId ?  applicant.car_id === selectedCarId : true;
-        console.log('Filtering applicant:', applicant, { matchesStatus, matchesCarId });
         return matchesStatus && matchesCarId;
       });
 
@@ -279,7 +278,7 @@ export default function SubmissionAdmin() {
                           Reset Date
                       </Button>
                     )}
-                    <Button variant="solid" onCLick={handleExport} className="text-white flex items-center" style={{ background: "#4F46E5" }}>
+                    <Button variant="solid" onClick={handleExport} className="text-white flex items-center" style={{ background: "#4F46E5" }}>
                             <img src="/folderX.png" alt="Export Icon" className="w-4 h-4" />
                             <div className="text-sm">Export</div>
                     </Button>
