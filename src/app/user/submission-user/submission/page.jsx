@@ -87,7 +87,7 @@ export default function Pengajuan() {
             setOpenSuccess(true)
         } catch (error) {
             const message = JSON.parse(error.message);
-            setErrorMessages(Object.values(message.errors).flat());
+            setErrorMessages(Object.values(message).flat());
             setOpenError(true);
             console.error('Error updating profile:', error);
         } finally {

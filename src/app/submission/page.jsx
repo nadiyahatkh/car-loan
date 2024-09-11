@@ -184,13 +184,13 @@ export default function SubmissionAdmin() {
                 }
                 </p>
               </div>
-              <div className="flex flex-col p-4 pt-12">
+              <div className="flex flex-col p-4 pt-20">
                 <p className="font-bold text-sm">{car.name}</p>
               </div>
               <img 
                 src={car.path}
                 alt={car.name} 
-                className="h-24 w-55 ml-auto mt-4" 
+                className="h-24 w-55 ml-8 mt-4" 
               />
             </Card>
           ))

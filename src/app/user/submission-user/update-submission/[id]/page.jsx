@@ -222,6 +222,7 @@ export default function UpdatePengajuan() {
                                                                 dateFormat="Pp"
                                                                 timeFormat="HH:mm"
                                                                 timeIntervals={15}
+                                                                minDate={new Date()}
                                                                 inline
                                                                 />
                                                             </PopoverContent>
@@ -261,6 +262,7 @@ export default function UpdatePengajuan() {
                                                                 dateFormat="Pp"
                                                                 timeFormat="HH:mm"
                                                                 timeIntervals={15}
+                                                                minDate={new Date()}
                                                                 inline
                                                             />
                                                             </PopoverContent>
