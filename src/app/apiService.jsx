@@ -4,7 +4,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const fetchNavbarProfile = async ({token}) => {
   try {
-    console.log(fetchNavbarProfile)
     const response = await fetch(`${BASE_URL}/api/navbar`, {
       headers: {
         'Authorization': `Bearer ${token}`,

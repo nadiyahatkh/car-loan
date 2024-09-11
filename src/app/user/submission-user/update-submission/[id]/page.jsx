@@ -55,7 +55,6 @@ export default function UpdatePengajuan() {
         const loadData = async () => {
           try {
             const response = await fetchCar({ token });
-            console.log(response)
             setCars(response.data.data);
           } catch (error) {
             console.error('Failed to fetch data:', error);
@@ -67,12 +66,8 @@ export default function UpdatePengajuan() {
     }, [token]);
 
     const onSubmit= async (data) => {
-        console.log('Form submitted with data:', data); // Add this line
         const submissionDate = data.submission_date ? format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
         const expiryDate = data.expiry_date ? format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
-
-        console.log('Submission Date:', submissionDate);
-        console.log('Expiry Date:', expiryDate);
 
         const payload = {
             ...data,
@@ -80,10 +75,8 @@ export default function UpdatePengajuan() {
             expiry_date: expiryDate,
             car_id: Number(data.car_id) || Number(carId),
         };
-        console.log('Payload:', payload);
         setIsLoading(true)
         try{
-            console.log('Form data before submission:', data);
             const result = await updateApplicantUser({data: payload, token, id: submissionId });
             setOpenSuccess(true)
         } catch (error) {
@@ -101,7 +94,6 @@ export default function UpdatePengajuan() {
             
           if (token && submissionId) {
             const response = await fetchApplicantUserDetail({ token, id: submissionId });
-            console.log('Fetched data:', response.data.dataApplicant);
             form.setValue('car_id', String(response.data.dataApplicant.car.id), {shouldValidate: true})
             form.setValue('submission_date', new Date(response.data.dataApplicant.submission_date), {shouldValidate: true})
             form.setValue('expiry_date', new Date(response.data.dataApplicant.expiry_date), {shouldValidate: true})
@@ -317,7 +309,6 @@ export default function UpdatePengajuan() {
                                                     type="submit" 
                                                     variant="primary" 
                                                     className="text-white h-10 w-full sm:w-auto" 
-                                                    onClick={() => console.log(form)}
                                                     style={{ background: "#4F46E5" }}
                                                 >
                                                     {isLoading ? (

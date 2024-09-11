@@ -70,7 +70,6 @@ export default function SubmissionUser(){
             const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
             const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
             const applicantData = await fetchApplicantUser({ token, start_date, end_date, search, status: statusFilter, page });
-            console.log(applicantData)
             setData(applicantData.Applicant);
             setCars(applicantData.car);
           } catch (error) {
@@ -110,7 +109,6 @@ export default function SubmissionUser(){
         };
 
         const filteredData = data?.filter((applicant) => {
-            console.log("Filtering data with statusFilter:", statusFilter);
             return statusFilter.length === 0 || statusFilter.includes(applicant.status);
         });
 

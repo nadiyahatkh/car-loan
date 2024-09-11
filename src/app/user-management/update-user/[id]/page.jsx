@@ -75,7 +75,6 @@ export default function UpdateUser (){
         const fetchData = async () => {
             if(token && id) {
                 const response = await fetchUsersDetail({ token, id });
-                console.log(response)
                 form.setValue('FirstName', response.data.FirstName)
                 form.setValue('LastName', response.data.LastName)
                 form.setValue('email', response.data.email)

@@ -54,7 +54,6 @@ export default function Pengajuan() {
         const loadData = async () => {
           try {
             const response = await fetchCar({ token });
-            console.log(response)
             setCars(response.data.data);
           } catch (error) {
             console.error('Failed to fetch data:', error);
@@ -66,12 +65,8 @@ export default function Pengajuan() {
     }, [token]);
 
     const onSubmit= async (data) => {
-        console.log('Form submitted with data:', data); // Add this line
         const submissionDate = data.submission_date ? format(data.submission_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
         const expiryDate = data.expiry_date ? format(data.expiry_date, "yyyy-MM-dd'T'HH:mm:ss") : null;
-
-        console.log('Submission Date:', submissionDate);
-        console.log('Expiry Date:', expiryDate);
 
         const payload = {
             ...data,
@@ -79,10 +74,8 @@ export default function Pengajuan() {
             expiry_date: expiryDate,
             car_id: Number(data.car_id) || Number(carId),
         };
-        console.log('Payload:', payload);
         setIsLoading(true)
         try{
-            console.log('Form data before submission:', data);
             const result = await createApplicantUser({data: payload, token });
             setOpenSuccess(true)
         } catch (error) {

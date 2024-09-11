@@ -54,7 +54,6 @@ export default function Navbar() {
         const loadDataFoto = async () => {
             try{
                 const profileData = await fetchNavbarProfile({token: session?.user?.token})
-                console.log(profileData)
                 setFoto(profileData.data.path)
             } catch (error) {
                 console.error('Failed to fetch data:', error);

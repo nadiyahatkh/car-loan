@@ -29,7 +29,6 @@ export default function DetailSubmission() {
         const loadDetail = async () => {
           if (token && submissionId) {
             const response = await fetchApplicantAdminDetail({ token, id: submissionId });
-            console.log(response)
             setDetail(response.data.dataApplicant);
           }
         };
