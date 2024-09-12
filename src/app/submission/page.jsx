@@ -171,7 +171,9 @@ export default function SubmissionAdmin() {
           cars.map((car) => (
             <Card key={car.id} onClick={() => handleCarSelection(car.id)} className="rounded-none flex relative w-full md:w-auto cursor-pointer">
               <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>{car.status_name} | {car.borrowed_by}</p>
+                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>
+                  {car.status_name} {car.borrowed_by === "Tidak Ada" ? " " : `| ${car.borrowed_by}`}
+                </p>
                 <p className="text-sm">
                 {car.expiry_date ? 
                   (() => {
