@@ -19,12 +19,12 @@ import { acceptApplicant, denyApplicant, fetchApplicantAdmin } from "../apiServi
 import { useSession } from "next-auth/react";
 import { Hearts, TailSpin } from "react-loader-spinner";
 import { useRouter } from "next/navigation";
-import { id } from "date-fns/locale";
+import { id as localeId } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "@/components/submission-admin/status-filter";
 import { statuses } from "@/components/submission-admin/constans";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 
 export default function SubmissionAdmin() {
   const router = useRouter();
@@ -49,7 +49,7 @@ export default function SubmissionAdmin() {
 
   const [date, setDate] = useState(defaultDate);
 
-  const submissionData = async (exportData = false) => {
+  const submissionData = async () => {
     try {
       const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
       const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
@@ -61,29 +61,72 @@ export default function SubmissionAdmin() {
         status: statusFilter,
         page,
         car_id: selectedCarId,
-        exportData, // Pass exportData to the API call
+        exportData: false
       });
+      console.log('Fetched Applicants:', applicantData.dataApplicant);
+      console.log('Fetched Cars:', applicantData.car);
       setData(applicantData.dataApplicant);
       setCars(applicantData.car);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     }
   };
+
+  const handleExport = async () => {
+    try {
+      const response = await fetchApplicantAdmin({
+        token,
+        start_date: date.from ? format(date.from, 'yyyy-MM-dd') : '',
+        end_date: date.to ? format(date.to, 'yyyy-MM-dd') : '',
+        search,
+        status: statusFilter,
+        page,
+        car_id: selectedCarId,
+        exportData: true
+      });
+  
+      if (response.ok) {
+        const contentType = response.headers.get('Content-Type');
+        if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'applicants.xlsx'); // Ensure this matches your backend filename
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        } else {
+          console.error('Unexpected content type');
+        }
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
+  
+  
+  
+  
   
   
   useEffect(() => {
       if (token) {
         submissionData();
+        handleExport()
       }
-    }, [token, date, search, statusFilter, page, selectedCarId, exportData]);
+    }, [token, date, search, statusFilter, page, selectedCarId]);
 
 
-    const handleExport = () => {
-      console.log(handleExport)
-      setExportData(true); // Set state exportData menjadi true
-      submissionData(); // Panggil fungsi fetch data dengan parameter export aktif
-      setExportData(false); // Kembalikan state exportData menjadi false setelah selesai
-    }
+    // const handleExport = () => {
+    //   console.log(handleExport)
+    //   setExportData(true); // Set state exportData menjadi true
+    //   submissionData(); // Panggil fungsi fetch data dengan parameter export aktif
+    //   setExportData(false); // Kembalikan state exportData menjadi false setelah selesai
+    // }
     
 
     const handleAccept = async (id) => {
@@ -145,6 +188,8 @@ export default function SubmissionAdmin() {
       };
 
       const filteredData = data?.filter((applicant) => {
+        console.log('Selected Car ID:', selectedCarId);
+        console.log('Applicant Car ID:', applicant.car_id);
         const matchesStatus = statusFilter.length === 0 || statusFilter.includes(applicant.status);
         const matchesCarId = selectedCarId ?  applicant.car_id === selectedCarId : true;
         return matchesStatus && matchesCarId;
@@ -158,7 +203,7 @@ export default function SubmissionAdmin() {
 
     const handleCarSelection = (carId) => {
       setSelectedCarId(carId);
-      // Optionally trigger data refresh
+      // console.log('Selected Car ID:', carId);
       submissionData();
     };
     
@@ -180,7 +225,7 @@ export default function SubmissionAdmin() {
                     const date = new Date(car.expiry_date);
                     return isNaN(date.getTime()) 
                       ? '-' 
-                      : format(date, "dd MMMM yyyy, HH:mm 'WIB'", { locale: id });
+                      : format(date, "dd MMMM yyyy, HH:mm 'WIB'", { locale: localeId });
                   })()
                   : '-'
                 }
@@ -306,10 +351,10 @@ export default function SubmissionAdmin() {
                           <TableRow key={applicant.id} className="cursor-pointer" onClick={() => handleRowClick(applicant.id)}>
                               <TableCell className="text-sm">{applicant.purpose}</TableCell>
                               <TableCell className="text-sm">
-                              {applicant.submission_date ? format(new Date(applicant.submission_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: id }) : '-'}
+                              {applicant.submission_date ? format(new Date(applicant.submission_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: localeId }) : '-'}
                               </TableCell>
                               <TableCell className="text-sm">
-                              {applicant.expiry_date ? format(new Date(applicant.expiry_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: id }) : '-'}
+                              {applicant.expiry_date ? format(new Date(applicant.expiry_date), "dd MMMM yyyy, HH:mm 'WIB'", { locale: localeId }) : '-'}
                               </TableCell>
                               <TableCell className="">
                                 <div className="flex items-center space-x-4">

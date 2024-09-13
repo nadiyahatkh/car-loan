@@ -41,6 +41,7 @@ export default function SubmissionUser(){
     const [search, setSearch] = useState('')
     const [pendingSearch, setPendingSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState([]);
+    const [selectedCarId, setSelectedCarId] = useState();
     const [page, setPage] = useState(1)
 
     const defaultDate = {
@@ -50,37 +51,46 @@ export default function SubmissionUser(){
     
     const [date, setDate] = useState(defaultDate);
 
-//   useEffect(() => {
-//     const loadData = async () => {
-//       try {
-//         const response = await fetchCar({ token });
-//         setCars(response.data.data);
-//       } catch (error) {
-//         console.error('Failed to fetch data:', error);
-//       }
-//     };
-//     if (token) {
-//       loadData();
-//     }
-//     }, [token]);
+  //   useEffect(() => {
+  //     const loadData = async () => {
+  //       try {
+  //         const response = await fetchCar({ token });
+  //         setCars(response.data.data);
+  //       } catch (error) {
+  //         console.error('Failed to fetch data:', error);
+  //       }
+  //     };
+  //     if (token) {
+  //       loadData();
+  //     }
+  //     }, [token]);
 
-    useEffect(() => {
         const submissionData = async () => {
           try {
             const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
             const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
-            const applicantData = await fetchApplicantUser({ token, start_date, end_date, search, status: statusFilter, page });
+            const applicantData = await fetchApplicantUser({ 
+              token, 
+              start_date, 
+              end_date, 
+              search, 
+              status: statusFilter, 
+              page, 
+              car_id: selectedCarId, 
+            });
+            console.log(applicantData)
             setData(applicantData.Applicant);
             setCars(applicantData.car);
           } catch (error) {
             console.error('Failed to fetch data:', error);
           }
         };
-      
+        
+        useEffect(() => {
           if (token) {
             submissionData();
           }
-        }, [token, date, search, statusFilter, page]);
+        }, [token, date, search, statusFilter, page, selectedCarId]);
 
         const handleRowClick = (id) => {
             router.push(`/user/detail-submission/${id}`);
@@ -109,49 +119,57 @@ export default function SubmissionUser(){
         };
 
         const filteredData = data?.filter((applicant) => {
-            return statusFilter.length === 0 || statusFilter.includes(applicant.status);
+          const matchesStatus = statusFilter.length === 0 || statusFilter.includes(applicant.status);
+          const matchesCarId = selectedCarId ?  applicant.car_id === selectedCarId : true;
+          return matchesStatus && matchesCarId;
         });
 
         const handlePageChange = (newPage) => {
             setPage(newPage);
           };
 
+          const handleCarSelection = (carId) => {
+            setSelectedCarId(carId);
+            // Optionally trigger data refresh
+            submissionData();
+          };      
+
   return(
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center space-y-3 md:space-x-3 mb-5">
-  {Array.isArray(cars) && cars.length > 0 ? (
-    cars.map((car) => (
-      <Card key={car.id} className="rounded-none flex relative w-full md:w-auto">
-        <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-          <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>
-            {car.status_name} {car.borrowed_by === "Tidak Ada" ? " " : `| ${car.borrowed_by}`}
-          </p>
-          <p className="text-sm">
-            {car.expiry_date ? 
-              (() => {
-                const date = new Date(car.expiry_date);
-                return isNaN(date.getTime()) 
-                  ? '-' 
-                  : format(date, "dd MMMM yyyy, HH:mm 'WIB'", { locale: id });
-              })()
-              : '-'
-            }
-          </p>
-        </div>
-        <div className="flex flex-col p-4 pt-20">
-          <p className="font-bold text-sm">{car.name}</p>
-        </div>
-        <img 
-          src={car.path}
-          alt={car.name} 
-          className="h-24 w-55 ml-auto mt-4" 
-        />
-      </Card>
-    ))
-  ) : (
-    <p>No cars available.</p>  // Fallback if cars array is empty
-  )}
-</div>
+            {Array.isArray(cars) && cars.length > 0 ? (
+              cars.map((car) => (
+                <Card key={car.id} onClick={() => handleCarSelection(car.id)} className="rounded-none flex relative w-full md:w-auto cursor-pointer">
+                  <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
+                    <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>
+                      {car.status_name} {car.borrowed_by === "Tidak Ada" ? " " : `| ${car.borrowed_by}`}
+                    </p>
+                    <p className="text-sm">
+                      {car.expiry_date ? 
+                        (() => {
+                          const date = new Date(car.expiry_date);
+                          return isNaN(date.getTime()) 
+                            ? '-' 
+                            : format(date, "dd MMMM yyyy, HH:mm 'WIB'", { locale: id });
+                        })()
+                        : '-'
+                      }
+                    </p>
+                  </div>
+                  <div className="flex flex-col p-4 pt-20">
+                    <p className="font-bold text-sm">{car.name}</p>
+                  </div>
+                  <img 
+                    src={car.path}
+                    alt={car.name} 
+                    className="h-24 w-55 ml-auto mt-4" 
+                  />
+                </Card>
+              ))
+            ) : (
+              <p>No cars available.</p>  // Fallback if cars array is empty
+            )}
+          </div>
 
 
 
