@@ -269,6 +269,7 @@ export default function SubmissionUser(){
                                   <TableHead className="text-sm font-semibold text-black">Status</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Catatan</TableHead>
                                   <TableHead className="text-sm font-semibold text-black">Aksi</TableHead>
+                                  <TableHead className="text-sm font-semibold text-black">Approvals</TableHead>
                               </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -320,6 +321,26 @@ export default function SubmissionUser(){
                                                 </Button>
                                             )}
                                             </TableCell>
+                                            <TableCell className="text-sm">
+                                            {applicant.approvals?.length > 0 ? (
+                                              applicant.approvals.map((approval) => (
+                                                <div key={approval.id} className="flex items-center space-x-2">
+                                                  <p className="font-semibold text-black">
+                                                    {approval.admin_name}:
+                                                  </p>
+                                                  {approval.approval_status === "Approved" ? (
+                                                    <p className="text-green-500">Approved</p>
+                                                  ) : approval.approval_status === "Rejected" ? (
+                                                    <p className="text-red-500">Rejected</p>
+                                                  ) : (
+                                                    <p className="text-yellow-500">Pending</p>
+                                                  )}
+                                                </div>
+                                              ))
+                                            ) : (
+                                              <p className="text-sm text-gray-500">No approvals yet</p>
+                                            )}
+                                          </TableCell>
                                         </TableRow>
                                 ))
                                 
