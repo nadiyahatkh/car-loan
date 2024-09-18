@@ -205,6 +205,7 @@ export const fetchCar = async ({ token }) => {
         };
     
         export const acceptApplicant = async ({ id, token }) => {
+          try{
             const response = await fetch(`${BASE_URL}/api/Applicant/accepted/${id}`, {
               method: 'POST',
               headers: {
@@ -214,25 +215,23 @@ export const fetchCar = async ({ token }) => {
             });
           
             if (!response.ok) {
-              throw new Error('Failed to accept applicant');
+                const result = await response.text();
+                console.log(result)
+                throw new Error(result);
+              }
+          
+              const result = await response.json();
+              return result;
+            } catch (error) {
+              console.error('Error update users:', error);
+              throw error;
             }
-          
-            // Coba respons sebagai teks terlebih dahulu untuk memeriksa apakah kosong
-            const textResponse = await response.text();
-          
-            if (textResponse === '') {
-              // Respons kosong, mungkin Anda ingin mengembalikan sesuatu yang lain
-              throw new Error('Empty response');
-            }
-          
-            // Parse respons sebagai JSON
-            return JSON.parse(textResponse);
           };
 
           export const denyApplicant = async ({ id, token, notes }) => {
+            try{
             const formData = new FormData();
             formData.append('notes', notes);
-          
             const response = await fetch(`${BASE_URL}/api/Applicant/denied/${id}`, {
               method: 'POST',
               headers: {
@@ -242,10 +241,17 @@ export const fetchCar = async ({ token }) => {
             });
           
             if (!response.ok) {
-              throw new Error('Failed to deny applicant');
+              const result = await response.text();
+              console.log(result)
+              throw new Error(result);
             }
-          
-            return await response.json();
+        
+            const result = await response.json();
+            return result;
+          } catch (error) {
+            console.error('Error update users:', error);
+            throw error;
+          }
           };
           
           

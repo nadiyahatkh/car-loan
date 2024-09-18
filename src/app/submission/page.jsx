@@ -43,6 +43,10 @@ export default function SubmissionAdmin() {
   const [selectedCarId, setSelectedCarId] = useState();
   const [page, setPage] = useState(1)
   const [exportData, setExportData] = useState(false)
+  const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [errorMessages, setErrorMessages] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
   const defaultDate = {
     from: new Date(2024, 0, 1),
     to: new Date(2024, 11, 31)
@@ -136,7 +140,10 @@ export default function SubmissionAdmin() {
         await acceptApplicant({ id, token });
         submissionData()
       } catch (error) {
-        console.error('Error accepting applicant:', error);
+        const message = JSON.parse(error.message);
+            setErrorMessages(Object.values(message).flat());
+            setOpenError(true);
+            console.error('Error updating profile:', error);
       } finally {
         setLoadingStatus((prevState) => ({ ...prevState, [id]: false }));
       }
@@ -156,7 +163,10 @@ export default function SubmissionAdmin() {
         setCurrentApplicantId(null);
         setIsDialogOpen(false);
       } catch (error) {
-        console.error('Error denying applicant:', error);
+        const message = JSON.parse(error.message);
+            setErrorMessages(Object.values(message).flat());
+            setOpenError(true);
+            console.error('Error updating profile:', error);
       } finally {
         setLoadingStatus((prevState) => ({ ...prevState, [currentApplicantId]: false }));
       }
@@ -542,6 +552,67 @@ export default function SubmissionAdmin() {
                           </PaginationItem>
                         </Pagination>
                     </CardFooter>
+                    {/* Success Dialog */}
+                    <AlertDialog open={openSuccess} onOpenChange={setOpenSuccess}>
+                        <AlertDialogContent className="flex flex-col items-center justify-center text-center">
+                            <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#DCFCE7" }}>
+                                <svg
+                                    className="w-6 h-6 text-green-600"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M5 13l4 4L19 7"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <AlertDialogTitle className="">Yeay! Sukses</AlertDialogTitle>
+                            <AlertDialogDescription className="">Anda telah berhasil mensetujui applicant ini.</AlertDialogDescription>
+                            <AlertDialogAction
+                                onClick={() => router.push('/submission')}
+                                style={{ background: "#4F46E5" }}
+                                className="w-full"
+                            >
+                                Kembali
+                            </AlertDialogAction>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
+                    {/* Error Dialog */}
+                    <AlertDialog open={openError} onOpenChange={setOpenError}>
+                    <AlertDialogContent className="flex flex-col items-center justify-center text-center">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full" style={{ background: "#FEE2E2" }}>
+                        <svg
+                            className="w-6 h-6 text-red-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                        </svg>
+                    </div>
+                    <AlertDialogTitle>Yahh! Error</AlertDialogTitle>
+                        <AlertDialogDescription>
+                        <div className="max-h-32 overflow-y-auto font-semibold">
+                            {errorMessages.map((message, index) => (
+                            <p key={index} className="text-red-500 italic">{message}</p>
+                            ))}
+                        </div>
+                        </AlertDialogDescription>
+                        <AlertDialogAction className="w-full" onClick={() => setOpenError(false)} style={{ background: "#4F46E5" }}>Kembali</AlertDialogAction>
+                    </AlertDialogContent>
+                    </AlertDialog>
             </Card>
         </div>
         </div>
