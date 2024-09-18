@@ -396,93 +396,92 @@ export default function SubmissionAdmin() {
                                 )}
                               </TableCell>
                               <TableCell>
-  {/* Periksa apakah admin yang login sudah memberikan approval */}
-  {applicant.admin_approvals?.some(approval => approval.user_id === currentAdminId) ? (
-    <p className="text-sm text-gray-500">Anda sudah memberikan keputusan.</p>
-  ) : (
-    // Jika belum, tampilkan tombol "Setujui" dan "Tolak"
-    applicant.status === 'Belum Disetujui' && (
-      <div className="flex space-x-2">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrentApplicantId(applicant.id); // Set the current applicant ID
-              }}
-              className="mr-2 shadow-md h-8 w-[30%]"
-              style={{ background: "#D1D5DB", color: "#3758C7" }}
-            >
-              Tolak
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Alasan Penolakan</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleDeny}>
-              <div className="grid w-full gap-1.5">
-                <Textarea
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Tuliskan alasan penolakan pengajuan
-                </p>
-              </div>
-              <DialogFooter className="">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Stop event bubbling
-                    setIsDialogOpen(false);
-                  }}
-                  className="mr-2 shadow-md h-8 w-[20%]"
-                  style={{ background: "#D1D5DB", color: "#3758C7" }}
-                >
-                  Kembali
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-white h-8 w-[20%]"
-                  style={{ background: "#4F46E5" }}
-                  disabled={loadingStatus[currentApplicantId]}
-                >
-                  {loadingStatus[currentApplicantId] ? (
-                    <Hearts height="15" width="15" color="#ffffff" ariaLabel="hearts-loading" />
-                  ) : (
-                    'Simpan'
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-        <Button
-          variant="outline"
-          onClick={(e) => {
-            e.stopPropagation(); // Stop event bubbling
-            handleAccept(applicant.id);
-          }}
-          disabled={loadingStatus[applicant.id]} // Disable tombol saat loading
-          className="mr-2 h-8 w-[30%] text-white"
-          style={{ background: "#4F46E5" }}
-        >
-          {loadingStatus[applicant.id] ? (
-            <Hearts height="15" width="15" color="#ffffff" ariaLabel="hearts-loading" />
-          ) : (
-            'Setujui'
-          )}
-        </Button>
-      </div>
-    )
-  )}
-</TableCell>
+                                {applicant.status === 'Belum Disetujui' &&
+                                  <div className="flex space-x-2">
+                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                      <DialogTrigger asChild>
+                                        <Button 
+                                          variant="outline" 
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCurrentApplicantId(applicant.id); // Set the current applicant ID
+                                          }}
+                                          className="mr-2 shadow-md h-8 w-[30%]" 
+                                          style={{ background: "#D1D5DB", color: "#3758C7" }}
+                                        >
+                                          Tolak
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="sm:max-w-md">
+                                      <DialogHeader>
+                                        <DialogTitle>Alasan Penolakan</DialogTitle>
+                                      </DialogHeader>
+                                      <form onSubmit={handleDeny}>
+                                        <div className="grid w-full gap-1.5">
+                                          <Textarea
+                                            id="notes"
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                          />
+                                          <p className="text-sm text-muted-foreground">
+                                            Tuliskan alasan penolakan pengajuan
+                                          </p>
+                                        </div>
+                                        <DialogFooter className="">
+                                          <Button
+                                            type="button" 
+                                            variant="outline" 
+                                            onClick={(e) => {
+                                              e.stopPropagation(); // Stop event bubbling
+                                              setIsDialogOpen(false);
+                                            }}
+                                            className="mr-2 shadow-md h-8 w-[20%]" 
+                                            style={{ background: "#D1D5DB", color: "#3758C7" }}
+                                          >
+                                            Kembali
+                                          </Button>
+                                          <Button 
+                                            type="submit"
+                                            variant="primary"
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="text-white h-8 w-[20%]"
+                                            style={{ background: "#4F46E5" }}
+                                            disabled={loadingStatus[currentApplicantId]}
+                                          >
+                                            {loadingStatus[currentApplicantId] ? (
+                                              <Hearts height="15" width="15" color="#ffffff" ariaLabel="hearts-loading" />
+                                            ) : (
+                                              'Simpan'
+                                            )}
+                                          </Button>
+                                        </DialogFooter>
+                                      </form>
+                                      </DialogContent>
+                                    </Dialog>
+                                    <Button
+                                      variant="outline"
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Stop event bubbling
+                                        handleAccept(applicant.id);
+                                      }}
+                                      disabled={loadingStatus[applicant.id]} // Disable tombol saat loading
+                                      className="mr-2 h-8 w-[30%] text-white"
+                                      style={{ background: "#4F46E5" }}
+                                    >
+                                      {loadingStatus[applicant.id] ? (
+                                        <Hearts
+                                          height="15"
+                                          width="15"
+                                          color="#ffffff"
+                                          ariaLabel="hearts-loading"
+                                        />
+                                      ) : (
+                                        'Setujui'
+                                      )}
+                                    </Button>
+                                  </div>
+                                }
+                              </TableCell>
 
                               <TableCell className="text-sm">
                                             {applicant.admin_approvals?.length > 0 ? (

@@ -5,6 +5,7 @@ export default withAuth(
   function middleware(req) {
     // const {pathname} = nexturl;
     const token = req.nextauth.token;
+    console.log(token)
     // const url = nexturl.clone;
 
     if (!token) {
@@ -12,12 +13,12 @@ export default withAuth(
     }
 
     // Prevent role 1 (admin) from accessing the root page "/"
-    // if (token) {
-    //   return NextResponse.redirect('/submission');
-    // }
+    if (token.role === 1 && req.nextUrl.pathname === "/") {
+      return NextResponse.redirect(new URL('/submission', req.url));
+    }
 
     // Prevent role 2 from accessing any page other than "/"
-    if (token.role === 2 && req.nextUrl.pathname !== "/") {
+    if (token.role === 2 && req.nextUrl.pathname !== "/user/submission-user") {
       return NextResponse.redirect(new URL('/user/submission-user', req.url));
     }
   },
@@ -30,6 +31,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
+    "/",
     "/submission", 
     "/user-management",
   ]

@@ -44,6 +44,7 @@ export const fetchCar = async ({ token }) => {
 
 //   API USER
   export const fetchApplicantUser = async ({token, start_date, end_date, search, status, page, car_id}) => {
+    console.log(fetchApplicantUser)
     try {
       const statusParams = status.map(s => `status[]=${s}`).join('&');
       let carUrl = ""
