@@ -287,28 +287,43 @@ export default function SubmissionUser(){
                                               {applicant.car_name}
                                             </TableCell>
                                             <TableCell >
-                                                {applicant.status === 'Disetujui' ? (
+                                                {applicant.status === 'Process' ? (
                                                         <div className="flex items-center space-x-2">
                                                             <CheckCheck className="w-4 h-4 text-green-500" />
-                                                            <p className="text-sm font-semibold text-green-500">Disetujui</p>
+                                                            <p className="text-sm font-semibold text-green-500">Process</p>
                                                         </div>
-                                                        ) : applicant.status === 'DiTolak' ? (
+                                                        ) : applicant.status === 'Rejected' ? (
                                                         <div className="flex items-center space-x-2">
                                                             <XCircle className="w-4 h-4 text-red-500" />
-                                                            <p className="text-sm font-semibold text-red-500">Ditolak</p>
+                                                            <p className="text-sm font-semibold text-red-500">Rejected</p>
                                                         </div>
-                                                        ) : applicant.status === 'Belum Disetujui' ? (
+                                                        ) : applicant.status === 'Pending' ? (
                                                             <div className="flex items-center space-x-2">
                                                                 <RefreshCcwIcon className="w-4 h-4 text-black" />
-                                                                <p className="text-sm font-semibold text-black">Belum Disetujui</p>
+                                                                <p className="text-sm font-semibold text-black">Pending</p>
                                                             </div>
                                                             ) : (
                                                                 <p className="text-sm font-semibold">{applicant.status}</p>
                                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-sm">{applicant.notes || '-'}</TableCell>
                                             <TableCell className="text-sm">
-                                            {(applicant.status !== 'Disetujui' && applicant.status !== 'DiTolak') && (
+                                              {applicant.approvals?.length > 0 ? (
+                                              applicant.approvals.map((approval) => (
+                                                <div key={approval.id} className="flex items-center space-x-2">
+                                                  <p className="font-semibold text-black">
+                                                    {approval.admin_name}:
+                                                  </p>
+                                                  <p>
+                                                  {approval.notes || "-"}
+                                                  </p>
+                                                </div>
+                                              ))
+                                            ) : (
+                                              <p className="text-sm text-gray-500">-</p>
+                                            )}
+                                            </TableCell>
+                                            <TableCell className="text-sm">
+                                            {(applicant.status !== 'Process' && applicant.status !== 'Rejected') && (
                                                 <Button
                                                     variant="primary"
                                                     onClick={(e) => { e.stopPropagation(); }}

@@ -385,20 +385,20 @@ export default function SubmissionAdmin() {
                                 {applicant.car_name}
                               </TableCell>
                               <TableCell className="">
-                               {applicant.status === 'Disetujui' ? (
+                               {applicant.status === 'Process' ? (
                                   <div className="flex items-center space-x-2">
                                     <CheckCheck className="w-4 h-4 text-green-500" />
-                                    <p className="text-sm font-semibold text-green-500">Disetujui</p>
+                                    <p className="text-sm font-semibold text-green-500">Process</p>
                                   </div>
-                                ) : applicant.status === 'DiTolak' ? (
+                                ) : applicant.status === 'Rejected' ? (
                                   <div className="flex items-center space-x-2">
                                     <XCircleIcon className="w-4 h-4 text-red-500" />
-                                    <p className="text-sm font-semibold text-red-500">Ditolak</p>
+                                    <p className="text-sm font-semibold text-red-500">Rejected</p>
                                   </div>
-                                ) : applicant.status === 'Belum Disetujui' ? (
+                                ) : applicant.status === 'Pending' ? (
                                     <div className="flex items-center space-x-2">
                                     <LoaderCircle className="w-4 h-4 text-black" />
-                                    <p className="text-sm font-semibold text-black">Belum Disetujui</p>
+                                    <p className="text-sm font-semibold text-black">Pending</p>
                                   </div>
                                 ) :
                                 (
@@ -406,7 +406,7 @@ export default function SubmissionAdmin() {
                                 )}
                               </TableCell>
                               <TableCell>
-                                {applicant.status === 'Belum Disetujui' &&
+                                {applicant.status === 'Pending' &&
                                   <div className="flex space-x-2">
                                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                       <DialogTrigger asChild>

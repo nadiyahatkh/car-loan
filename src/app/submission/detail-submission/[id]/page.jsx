@@ -29,6 +29,7 @@ export default function DetailSubmission() {
         const loadDetail = async () => {
           if (token && submissionId) {
             const response = await fetchApplicantAdminDetail({ token, id: submissionId });
+            console.log(response)
             setDetail(response.data.dataApplicant);
           }
         };
@@ -144,7 +145,7 @@ export default function DetailSubmission() {
                             </div>
                             )}
 
-                            {detail?.status !== 'Disetujui' && detail?.status !== 'DiTolak' && (
+                            {detail?.status !== 'Process' && detail?.status !== 'Rejected' && (
                                 <div className="flex justify-center items-center py-4 text-sm">
                                     <div className="w-2/4">
                                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
