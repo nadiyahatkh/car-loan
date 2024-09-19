@@ -1,6 +1,7 @@
 export const statuses = [
-    { value: "Belum Disetujui", label: "Belum Disetujui" },
-  { value: "Disetujui", label: "Disetujui" },
-  { value: "DiTolak", label: "DiTolak" },
-   
-  ]
+  { value: "Pending", label: "Pending" },
+{ value: "Process", label: "Process" },
+{ value: "Rejected", label: "Rejected" },
+{ value: "completed", label: "Completed" },
+ 
+]

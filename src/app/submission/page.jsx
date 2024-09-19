@@ -7,7 +7,7 @@ import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, Tabl
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
-import { CheckCheck, FolderXIcon, LoaderCircle, XCircleIcon } from "lucide-react";
+import { Check, CheckCheck, FolderXIcon, LoaderCircle, XCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "@/components/submission-admin/status-filter";
 import { statuses } from "@/components/submission-admin/constans";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function SubmissionAdmin() {
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function SubmissionAdmin() {
 
   const [date, setDate] = useState(defaultDate);
 
-  const submissionData = async () => {
+  const submissionData = async (    ) => {
     try {
       const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
       const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
@@ -66,7 +66,6 @@ export default function SubmissionAdmin() {
         status: statusFilter,
         page,
         car_id: selectedCarId,
-        exportData: false
       });
       console.log('Fetched Applicants:', applicantData.dataApplicant);
       console.log('Fetched Cars:', applicantData.car);
@@ -77,62 +76,51 @@ export default function SubmissionAdmin() {
     }
   };
 
-  const handleExport = async () => {
-    try {
-      const response = await fetchApplicantAdmin({
-        token,
-        start_date: date.from ? format(date.from, 'yyyy-MM-dd') : '',
-        end_date: date.to ? format(date.to, 'yyyy-MM-dd') : '',
-        search,
-        status: statusFilter,
-        page,
-        car_id: selectedCarId,
-        exportData: true
-      });
   
-      if (response.ok) {
-        const contentType = response.headers.get('Content-Type');
-        if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'applicants.xlsx'); // Ensure this matches your backend filename
-          document.body.appendChild(link);
-          link.click();
-          link.parentNode.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        } else {
-          console.error('Unexpected content type');
-        }
-      } else {
-        throw new Error('Failed to fetch data');
-      }
+  
+  
+// Tambahkan fungsi handleExport
+const handleExport = async () => {
+  try {
+    const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
+    const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
+    const statusParams = statusFilter.map(s => `status[]=${s}`).join('&');
+    const carUrl = selectedCarId ? `&car_id=${selectedCarId}` : '';
+  
+    const exportUrl = `${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}&page=${page}${carUrl}&export=true`;
+
+    // Fetch the Excel file from the server
+    const response = await fetch(exportUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // Ensure correct content type for Excel
+      },
+    });
+
+        // Membuat URL dari Blob
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'applicants.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     } catch (error) {
-      console.error('Export failed:', error);
+        console.error('Error while exporting applicants:', error);
     }
-  };
-  
-  
-  
-  
+};
+
   
   
   useEffect(() => {
       if (token) {
         submissionData();
-        handleExport()
       }
     }, [token, date, search, statusFilter, page, selectedCarId]);
 
 
-    // const handleExport = () => {
-    //   console.log(handleExport)
-    //   setExportData(true); // Set state exportData menjadi true
-    //   submissionData(); // Panggil fungsi fetch data dengan parameter export aktif
-    //   setExportData(false); // Kembalikan state exportData menjadi false setelah selesai
-    // }
-    
+  
 
     const handleAccept = async (id) => {
       setLoadingStatus((prevState) => ({ ...prevState, [id]: true }));
@@ -336,7 +324,7 @@ export default function SubmissionAdmin() {
                           Reset Date
                       </Button>
                     )}
-                    <Button variant="solid" onClick={handleExport} className="text-white flex items-center" style={{ background: "#4F46E5" }}>
+                    <Button variant="solid" className="text-white flex items-center" style={{ background: "#4F46E5" }}>
                             <img src="/folderX.png" alt="Export Icon" className="w-4 h-4" />
                             <div className="text-sm">Export</div>
                     </Button>
@@ -387,7 +375,7 @@ export default function SubmissionAdmin() {
                               <TableCell className="">
                                {applicant.status === 'Process' ? (
                                   <div className="flex items-center space-x-2">
-                                    <CheckCheck className="w-4 h-4 text-green-500" />
+                                    <Check className="w-4 h-4 text-green-500" />
                                     <p className="text-sm font-semibold text-green-500">Process</p>
                                   </div>
                                 ) : applicant.status === 'Rejected' ? (
