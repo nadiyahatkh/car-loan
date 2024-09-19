@@ -400,8 +400,12 @@ export default function SubmissionAdmin() {
                                     <LoaderCircle className="w-4 h-4 text-black" />
                                     <p className="text-sm font-semibold text-black">Pending</p>
                                   </div>
-                                ) :
-                                (
+                                ) : applicant.status === 'completed' ? (
+                                  <div className="flex items-center space-x-2">
+                                      <CheckCheck className="w-4 h-4 text-black" />
+                                      <p className="text-sm font-semibold text-black">Completed</p>
+                                  </div>
+                              ) : (
                                   <p className="text-sm font-semibold">{applicant.status}</p>
                                 )}
                               </TableCell>

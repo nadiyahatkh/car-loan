@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { id } from "date-fns/locale";
-import { CheckCheck, CheckCheckIcon, FolderXIcon, RefreshCcwIcon, XCircle } from "lucide-react";
+import { Check, CheckCheck, CheckCheckIcon, FolderXIcon, RefreshCcwIcon, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -289,7 +289,7 @@ export default function SubmissionUser(){
                                             <TableCell >
                                                 {applicant.status === 'Process' ? (
                                                         <div className="flex items-center space-x-2">
-                                                            <CheckCheck className="w-4 h-4 text-green-500" />
+                                                            <Check className="w-4 h-4 text-green-500" />
                                                             <p className="text-sm font-semibold text-green-500">Process</p>
                                                         </div>
                                                         ) : applicant.status === 'Rejected' ? (
@@ -302,9 +302,14 @@ export default function SubmissionUser(){
                                                                 <RefreshCcwIcon className="w-4 h-4 text-black" />
                                                                 <p className="text-sm font-semibold text-black">Pending</p>
                                                             </div>
-                                                            ) : (
-                                                                <p className="text-sm font-semibold">{applicant.status}</p>
-                                                                )}
+                                                        ) : applicant.status === 'completed' ? (
+                                                            <div className="flex items-center space-x-2">
+                                                                <CheckCheck className="w-4 h-4 text-black" />
+                                                                <p className="text-sm font-semibold text-black">Completed</p>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-sm font-semibold">{applicant.status}</p>
+                                                            )}
                                             </TableCell>
                                             <TableCell className="text-sm">
                                               {applicant.approvals?.length > 0 ? (
@@ -323,7 +328,7 @@ export default function SubmissionUser(){
                                             )}
                                             </TableCell>
                                             <TableCell className="text-sm">
-                                            {(applicant.status !== 'Process' && applicant.status !== 'Rejected') && (
+                                            {(applicant.status !== 'Process' && applicant.status !== 'Rejected' && applicant.status !== 'completed') && (
                                                 <Button
                                                     variant="primary"
                                                     onClick={(e) => { e.stopPropagation(); }}
