@@ -145,7 +145,7 @@ export default function DetailSubmission() {
                             </div>
                             )}
 
-                            {detail?.status !== 'Process' && detail?.status !== 'Rejected' && (
+                            {detail?.status !== 'Process' && detail?.status !== 'Rejected' && detail?.status !== 'Finished' && detail?.status !== 'Process' && detail?.status !== 'Rejected' && detail?.status !== 'Pending' && (
                                 <div className="flex justify-center items-center py-4 text-sm">
                                     <div className="w-2/4">
                                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

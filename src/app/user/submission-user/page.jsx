@@ -311,10 +311,10 @@ export default function SubmissionUser(){
                                                                 <RefreshCcwIcon className="w-4 h-4 text-black" />
                                                                 <p className="text-sm font-semibold text-black">Pending</p>
                                                             </div>
-                                                        ) : applicant.status === 'completed' ? (
+                                                        ) : applicant.status === 'Finished' ? (
                                                             <div className="flex items-center space-x-2">
                                                                 <CheckCheck className="w-4 h-4 text-black" />
-                                                                <p className="text-sm font-semibold text-black">Completed</p>
+                                                                <p className="text-sm font-semibold text-black">Finished</p>
                                                             </div>
                                                         ) : (
                                                             <p className="text-sm font-semibold">{applicant.status}</p>
@@ -339,7 +339,7 @@ export default function SubmissionUser(){
                                             <TableCell className="text-sm">
                                             {(applicant.status !== 'Process' && 
                                               applicant.status !== 'Rejected' && 
-                                              applicant.status !== 'completed') ? (
+                                              applicant.status !== 'Finished') ? (
                                                 <Button
                                                     variant="primary"
                                                     onClick={(e) => { e.stopPropagation(); }}
@@ -366,6 +366,8 @@ export default function SubmissionUser(){
                                                     <p className="text-green-500">Approved</p>
                                                   ) : approval.approval_status === "Rejected" ? (
                                                     <p className="text-red-500">Rejected</p>
+                                                  ) : approval.approval_status === "Completed" ? (
+                                                    <p className="text-black">Completed</p>
                                                   ) : (
                                                     <p className="text-yellow-500">Pending</p>
                                                   )}
