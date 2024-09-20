@@ -156,15 +156,15 @@ export const fetchCar = async ({ token }) => {
     };
 
     // API ADMIN
-    export const fetchApplicantAdmin = async ({token ,start_date, end_date, search, status, page, car_id}) => {
+    export const fetchApplicantAdmin = async ({token ,start_date, end_date, search, status, page, car_id, exportData}) => {
         try {
           const statusParams = status?.map(s => `status[]=${s}`).join('&');
           let carUrl = ""
           if(car_id) {
             carUrl = `&car_id=${car_id}`
           }
-          // let exportUrl = exportData ? `&export=${exportData}` : '';
-            const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}&page=${page}${carUrl}`, {
+          let exportUrl = exportData ? `&export=${exportData}` : '';
+            const response = await fetch(`${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}&page=${page}${carUrl}${exportUrl}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${token}`,
@@ -172,7 +172,7 @@ export const fetchCar = async ({ token }) => {
             })
             .then((res) => res.json())
             .then((data) => {
-              console.log(data); // Tambahkan ini untuk melihat isi response dari API
+              console.log(data); 
              return {
               data: data,
               message: "successs"

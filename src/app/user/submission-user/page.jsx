@@ -141,8 +141,17 @@ export default function SubmissionUser(){
               cars.map((car) => (
                 <Card key={car.id} onClick={() => handleCarSelection(car.id)} className="rounded-none flex relative w-full md:w-auto cursor-pointer">
                   <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-                    <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>
-                      {car.status_name} {car.borrowed_by === "Tidak Ada" ? " " : `| ${car.borrowed_by}`}
+                    <p className="text-sm font-semibold">
+                      <span className={
+                        car.status_name === "Available" ? "text-green-500" :
+                        car.status_name === "Pending" ? "text-blue-500" :
+                        car.status_name === "In Use" ? "text-yellow-500" : ""
+                      }>
+                        {car.status_name}
+                      </span>
+                      {car.borrowed_by !== "Tidak Ada" && (
+                        <span className="text-black"> | {car.borrowed_by}</span>
+                      )}
                     </p>
                     <p className="text-sm">
                       {car.expiry_date ? 
@@ -328,7 +337,9 @@ export default function SubmissionUser(){
                                             )}
                                             </TableCell>
                                             <TableCell className="text-sm">
-                                            {(applicant.status !== 'Process' && applicant.status !== 'Rejected' && applicant.status !== 'completed') && (
+                                            {(applicant.status !== 'Process' && 
+                                              applicant.status !== 'Rejected' && 
+                                              applicant.status !== 'completed') ? (
                                                 <Button
                                                     variant="primary"
                                                     onClick={(e) => { e.stopPropagation(); }}
@@ -339,7 +350,10 @@ export default function SubmissionUser(){
                                                         Edit
                                                     </Link>
                                                 </Button>
+                                            ) : (
+                                                <p>-</p>
                                             )}
+
                                             </TableCell>
                                             <TableCell className="text-sm">
                                             {applicant.approvals?.length > 0 ? (

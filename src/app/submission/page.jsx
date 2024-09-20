@@ -31,7 +31,8 @@ export default function SubmissionAdmin() {
   const [loadingStatus, setLoadingStatus] = useState({});
   const { data: session } = useSession();
   const token = session?.user?.token;
-  const currentAdminId = session?.user?.id;
+  const currentAdminId = session?.user?.email;
+  console.log(currentAdminId)
   const [cars, setCars] = useState([])
   const [data, setData] = useState([])
   const [notes, setNotes] = useState('');
@@ -54,7 +55,7 @@ export default function SubmissionAdmin() {
 
   const [date, setDate] = useState(defaultDate);
 
-  const submissionData = async (    ) => {
+  const submissionData = async (exportData = false) => {
     try {
       const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
       const end_date = date.to ? format(date.to, 'yyyy-MM-dd') : '';
@@ -66,6 +67,7 @@ export default function SubmissionAdmin() {
         status: statusFilter,
         page,
         car_id: selectedCarId,
+        exportData,
       });
       console.log('Fetched Applicants:', applicantData.dataApplicant);
       console.log('Fetched Cars:', applicantData.car);
@@ -87,7 +89,20 @@ const handleExport = async () => {
     const statusParams = statusFilter.map(s => `status[]=${s}`).join('&');
     const carUrl = selectedCarId ? `&car_id=${selectedCarId}` : '';
   
-    const exportUrl = `${BASE_URL}/api/data/applicants?search=${search}&start_date=${start_date}&end_date=${end_date}&${statusParams}&page=${page}${carUrl}&export=true`;
+    let exportUrl = `${BASE_URL}/api/data/applicants?export=true`;
+    if(start_date) {
+      exportUrl += `&start_date=${start_date}`
+    }
+    if(end_date) {
+      exportUrl += `&end_date=${end_date}`
+    }
+    if(statusParams) {
+      exportUrl += `&statusParams=${statusParams}`
+    }
+    if(carUrl) {
+      exportUrl += `&carUrl=${carUrl}`
+    }
+    
 
     // Fetch the Excel file from the server
     const response = await fetch(exportUrl, {
@@ -98,17 +113,22 @@ const handleExport = async () => {
       },
     });
 
-        // Membuat URL dari Blob
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'applicants.xlsx');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    } catch (error) {
-        console.error('Error while exporting applicants:', error);
+    // If the response is OK, create a downloadable blob from it
+    if (response.ok) {
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = 'applicants.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      a.remove(); // Clean up
+    } else {
+      console.error('Failed to download file:', response.statusText);
     }
+  } catch (error) {
+    console.error('Error during file export:', error);
+  }
 };
 
   
@@ -215,9 +235,19 @@ const handleExport = async () => {
           cars.map((car) => (
             <Card key={car.id} onClick={() => handleCarSelection(car.id)} className="rounded-none flex relative w-full md:w-auto cursor-pointer">
               <div className="absolute top-2 left-2 bg-gray-200 p-2 rounded-sm">
-                <p className={`text-sm font-semibold ${car.status_name === "Available" ? "text-green-500" : ""}`}>
-                  {car.status_name} {car.borrowed_by === "Tidak Ada" ? " " : `| ${car.borrowed_by}`}
+              <p className="text-sm font-semibold">
+                  <span className={
+                    car.status_name === "Available" ? "text-green-500" :
+                    car.status_name === "Pending" ? "text-blue-500" :
+                    car.status_name === "In Use" ? "text-yellow-500" : ""
+                  }>
+                    {car.status_name}
+                  </span>
+                  {car.borrowed_by !== "Tidak Ada" && (
+                    <span className="text-black"> | {car.borrowed_by}</span>
+                  )}
                 </p>
+
                 <p className="text-sm">
                 {car.expiry_date ? 
                   (() => {
@@ -324,7 +354,7 @@ const handleExport = async () => {
                           Reset Date
                       </Button>
                     )}
-                    <Button variant="solid" className="text-white flex items-center" style={{ background: "#4F46E5" }}>
+                    <Button variant="solid" onClick={handleExport} className="text-white flex items-center" style={{ background: "#4F46E5" }}>
                             <img src="/folderX.png" alt="Export Icon" className="w-4 h-4" />
                             <div className="text-sm">Export</div>
                     </Button>
@@ -341,6 +371,7 @@ const handleExport = async () => {
                           <TableHead className="text-sm font-semibold text-black">Peminjaman</TableHead>
                           <TableHead className="text-sm font-semibold text-black">Mobil</TableHead>
                           <TableHead className="text-sm font-semibold text-black">Status</TableHead>
+                          <TableHead className="text-sm font-semibold text-black">Notes</TableHead>
                           <TableHead className="text-sm font-semibold text-black">Aksi</TableHead>
                           <TableHead className="text-sm font-semibold text-black">Approvals</TableHead>
                           </TableRow>
@@ -397,93 +428,120 @@ const handleExport = async () => {
                                   <p className="text-sm font-semibold">{applicant.status}</p>
                                 )}
                               </TableCell>
-                              <TableCell>
-                                {applicant.status === 'Pending' &&
-                                  <div className="flex space-x-2">
-                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                      <DialogTrigger asChild>
-                                        <Button 
-                                          variant="outline" 
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setCurrentApplicantId(applicant.id); // Set the current applicant ID
-                                          }}
-                                          className="mr-2 shadow-md h-8 w-[30%]" 
-                                          style={{ background: "#D1D5DB", color: "#3758C7" }}
-                                        >
-                                          Tolak
-                                        </Button>
-                                      </DialogTrigger>
-                                      <DialogContent className="sm:max-w-md">
-                                      <DialogHeader>
-                                        <DialogTitle>Alasan Penolakan</DialogTitle>
-                                      </DialogHeader>
-                                      <form onSubmit={handleDeny}>
-                                        <div className="grid w-full gap-1.5">
-                                          <Textarea
-                                            id="notes"
-                                            value={notes}
-                                            onChange={(e) => setNotes(e.target.value)}
-                                          />
-                                          <p className="text-sm text-muted-foreground">
-                                            Tuliskan alasan penolakan pengajuan
-                                          </p>
-                                        </div>
-                                        <DialogFooter className="">
-                                          <Button
-                                            type="button" 
-                                            variant="outline" 
-                                            onClick={(e) => {
-                                              e.stopPropagation(); // Stop event bubbling
-                                              setIsDialogOpen(false);
-                                            }}
-                                            className="mr-2 shadow-md h-8 w-[20%]" 
-                                            style={{ background: "#D1D5DB", color: "#3758C7" }}
-                                          >
-                                            Kembali
-                                          </Button>
-                                          <Button 
-                                            type="submit"
-                                            variant="primary"
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="text-white h-8 w-[20%]"
-                                            style={{ background: "#4F46E5" }}
-                                            disabled={loadingStatus[currentApplicantId]}
-                                          >
-                                            {loadingStatus[currentApplicantId] ? (
-                                              <Hearts height="15" width="15" color="#ffffff" ariaLabel="hearts-loading" />
-                                            ) : (
-                                              'Simpan'
-                                            )}
-                                          </Button>
-                                        </DialogFooter>
-                                      </form>
-                                      </DialogContent>
-                                    </Dialog>
-                                    <Button
-                                      variant="outline"
-                                      onClick={(e) => {
-                                        e.stopPropagation(); // Stop event bubbling
-                                        handleAccept(applicant.id);
-                                      }}
-                                      disabled={loadingStatus[applicant.id]} // Disable tombol saat loading
-                                      className="mr-2 h-8 w-[30%] text-white"
-                                      style={{ background: "#4F46E5" }}
-                                    >
-                                      {loadingStatus[applicant.id] ? (
-                                        <Hearts
-                                          height="15"
-                                          width="15"
-                                          color="#ffffff"
-                                          ariaLabel="hearts-loading"
-                                        />
-                                      ) : (
-                                        'Setujui'
-                                      )}
-                                    </Button>
-                                  </div>
-                                }
-                              </TableCell>
+                              <TableCell className="text-sm">
+                                  {applicant.admin_approvals?.length > 0 ? (
+                                  applicant.admin_approvals.map((approval) => (
+                                    <div key={approval.id} className="flex items-center space-x-2">
+                                      <p className="font-semibold text-black">
+                                        {approval.admin_name}:
+                                      </p>
+                                      <p>
+                                      {approval.notes || "-"}
+                                      </p>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-gray-500">-</p>
+                                )}
+                                </TableCell>
+                                <TableCell>
+  {applicant.status === 'Pending' &&
+    !applicant.admin_approvals.some(
+      (approval) => approval.email === currentAdminId && 
+                    (approval.approval_status === 'Approved' || approval.approval_status === 'Rejected')
+    ) && (
+    <div className="flex space-x-2">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              setCurrentApplicantId(applicant.id); 
+            }}
+            className="mr-2 shadow-md h-8 w-[30%]"
+            style={{ background: "#D1D5DB", color: "#3758C7" }}
+          >
+            Tolak
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Alasan Penolakan</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleDeny}>
+            <div className="grid w-full gap-1.5">
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+              <p className="text-sm text-muted-foreground">
+                Tuliskan alasan penolakan pengajuan
+              </p>
+            </div>
+            <DialogFooter className="">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation(); // Stop event bubbling
+                  setIsDialogOpen(false);
+                }}
+                className="mr-2 shadow-md h-8 w-[20%]"
+                style={{ background: "#D1D5DB", color: "#3758C7" }}
+              >
+                Kembali
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                onClick={(e) => e.stopPropagation()}
+                className="text-white h-8 w-[20%]"
+                style={{ background: "#4F46E5" }}
+                disabled={loadingStatus[currentApplicantId]}
+              >
+                {loadingStatus[currentApplicantId] ? (
+                  <Hearts
+                    height="15"
+                    width="15"
+                    color="#ffffff"
+                    ariaLabel="hearts-loading"
+                  />
+                ) : (
+                  'Simpan'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Button
+        variant="outline"
+        onClick={(e) => {
+          e.stopPropagation(); // Stop event bubbling
+          handleAccept(applicant.id);
+        }}
+        disabled={loadingStatus[applicant.id]} // Disable tombol saat loading
+        className="mr-2 h-8 w-[30%] text-white"
+        style={{ background: "#4F46E5" }}
+      >
+        {loadingStatus[applicant.id] ? (
+          <Hearts
+            height="15"
+            width="15"
+            color="#ffffff"
+            ariaLabel="hearts-loading"
+          />
+        ) : (
+          'Setujui'
+        )}
+      </Button>
+    </div>
+  )}
+</TableCell>
+
+
 
                               <TableCell className="text-sm">
                                             {applicant.admin_approvals?.length > 0 ? (
