@@ -253,6 +253,29 @@ export const fetchCar = async ({ token }) => {
             throw error;
           }
           };
+
+          export const finishedApplicant = async ({ id, token }) => {
+            try{
+            const response = await fetch(`${BASE_URL}/api/Applicant/completed/${id}`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+          
+            if (!response.ok) {
+              const result = await response.text();
+              console.log(result)
+              throw new Error(result);
+            }
+        
+            const result = await response.json();
+            return result;
+          } catch (error) {
+            console.error('Error update users:', error);
+            throw error;
+          }
+          };
           
           
 

@@ -53,6 +53,7 @@ const authOptions = {
   callbacks: {
     async jwt({ token, account, user }) {
       if (account?.provider === "credentials") {
+        token.id = user.data.id;
         token.email = user.data.email;
         token.foto = user.data.foto;
         token.name = user.data.name;
@@ -63,6 +64,7 @@ const authOptions = {
       return token;
     },
     async session({ session, token }) {
+      session.user.id = token.id;
       session.user.email = token.email;
       session.user.foto = token.foto;
       session.user.name = token.name;
