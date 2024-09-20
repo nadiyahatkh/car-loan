@@ -78,7 +78,6 @@ export default function SubmissionUser(){
               page, 
               car_id: selectedCarId, 
             });
-            console.log(applicantData)
             setData(applicantData.Applicant);
             setCars(applicantData.car);
           } catch (error) {

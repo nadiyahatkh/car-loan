@@ -54,9 +54,6 @@ export default function UpdateUser (){
                 delete filteredData.password_confirmation;
             }
     
-            
-
-            console.log('Filtered Data:', filteredData);
     
             const result = await updateUsers({ id, data: filteredData, token });
             setOpenSuccess(true);

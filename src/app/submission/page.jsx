@@ -32,7 +32,6 @@ export default function SubmissionAdmin() {
   const { data: session } = useSession();
   const token = session?.user?.token;
   const currentAdminId = session?.user?.id;
-  console.log(currentAdminId)
   const [cars, setCars] = useState([])
   const [data, setData] = useState([])
   const [notes, setNotes] = useState('');
@@ -69,8 +68,6 @@ export default function SubmissionAdmin() {
         car_id: selectedCarId,
         exportData,
       });
-      console.log('Fetched Applicants:', applicantData.dataApplicant);
-      console.log('Fetched Cars:', applicantData.car);
       setData(applicantData.dataApplicant);
       setCars(applicantData.car);
     } catch (error) {
