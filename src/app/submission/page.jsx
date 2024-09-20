@@ -95,7 +95,7 @@ const handleExport = async () => {
       exportUrl += `&${statusParams}`
     }
     if(carUrl) {
-      exportUrl += `&carUrl=${carUrl}`
+      exportUrl += `&${carUrl}`
     }
     
     const response = await fetch(exportUrl, {
