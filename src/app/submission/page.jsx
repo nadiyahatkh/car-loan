@@ -77,8 +77,6 @@ export default function SubmissionAdmin() {
 
   
   
-  
-// Tambahkan fungsi handleExport
 const handleExport = async () => {
   try {
     const start_date = date.from ? format(date.from, 'yyyy-MM-dd') : '';
@@ -86,7 +84,7 @@ const handleExport = async () => {
     const statusParams = statusFilter.map(s => `status[]=${s}`).join('&');
     const carUrl = selectedCarId ? `&car_id=${selectedCarId}` : '';
   
-    let exportUrl = `${BASE_URL}/api/data/applicants?export=true`;
+    let exportUrl = `${BASE_URL}/api/data/applicants?export=excel`;
     if(start_date) {
       exportUrl += `&start_date=${start_date}`
     }
@@ -94,14 +92,12 @@ const handleExport = async () => {
       exportUrl += `&end_date=${end_date}`
     }
     if(statusParams) {
-      exportUrl += `&statusParams=${statusParams}`
+      exportUrl += `&${statusParams}`
     }
     if(carUrl) {
       exportUrl += `&carUrl=${carUrl}`
     }
     
-
-    // Fetch the Excel file from the server
     const response = await fetch(exportUrl, {
       method: 'GET',
       headers: {
@@ -110,7 +106,6 @@ const handleExport = async () => {
       },
     });
 
-    // If the response is OK, create a downloadable blob from it
     if (response.ok) {
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
